@@ -3,45 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHF Patient Tracking & Scheduler</title>
+    <title>CHF Follow-up Date Calculator</title>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
         header { background-color: #4338ca; color: white; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .header-wrap { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .header-wrap { max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; }
         .header-title p { font-size: 12px; margin: 4px 0 0 0; color: #c7d2fe; }
         .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; }
         .nav-btn:hover { background-color: #6366f1; }
 
-        .main-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
-        @media (max-width: 1024px) { .main-container { grid-template-columns: 1fr; } .col-left, .col-right { grid-column: span 12 !important; } }
-        .col-left { grid-column: span 4; }
-        .col-right { grid-column: span 8; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; box-sizing: border-box; }
+        .card { background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card-title { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-top: 20px; }
+        .form-group label { font-size: 14px; font-weight: 600; color: #475569; }
+        .form-group input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; background: white; width: 100%; box-sizing: border-box; }
+        .form-group input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
 
-        .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 12px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+        /* ส่วนแสดงผลลัพธ์วันที่ */
+        .result-section { margin-top: 30px; display: flex; flex-direction: column; gap: 12px; }
+        .result-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; transition: 0.2s; }
+        .result-row:hover { background-color: #f1f5f9; transform: translateX(4px); }
         
-        .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
-        .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
-        .form-group input { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; width: 100%; }
+        .timeline-label { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .dot-3m { background-color: #0ea5e9; }
+        .dot-6m { background-color: #f59e0b; }
+        .dot-1y { background-color: #a855f7; }
         
-        .submit-btn { width: 100%; background: #4338ca; color: white; border: none; padding: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 14px; }
-        .submit-btn:hover { background: #3730a3; }
-
-        .table-scroll { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 700px; }
-        th, td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-        th { background: #f8fafc; font-weight: 600; color: #64748b; }
-        
-        /* ปุ่มทางลัดลิงกลิงก์ไปหน้าประเมิน */
-        .btn-go { display: inline-block; padding: 4px 8px; font-size: 11px; font-weight: 600; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; text-align: center; }
-        .bg-3m { background-color: #0ea5e9; } .bg-3m:hover { background-color: #0369a1; }
-        .bg-6m { background-color: #f59e0b; color: #1e293b; } .bg-6m:hover { background-color: #d97706; color: white; }
-        .bg-1y { background-color: #a855f7; } .bg-1y:hover { background-color: #6b21a8; }
-        .btn-del { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 11px; border: none; cursor: pointer; }
-        .btn-del:hover { background-color: #dc2626; }
-        
-        .empty-row { text-align: center; color: #94a3b8; padding: 30px; font-style: italic; }
+        .date-output { font-family: monospace; font-size: 16px; font-weight: 700; color: #1e1b4b; background: white; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
@@ -49,144 +41,87 @@
     <header>
         <div class="header-wrap">
             <div class="header-title">
-                <h1>📅 CHF Patient Tracking & Scheduler</h1>
-                <p>ระบบวางแผนนัดหมายและระบบทางลัดแจ้งเตือนครบกำหนดรอบประเมินคุณภาพชีวิต</p>
+                <h1>📅 CHF Follow-up Calculator</h1>
+                <p>โปรแกรมคำนวณวันนัดตรวจติดตามคุณภาพชีวิตผู้ป่วยภาวะหัวใจล้มเหลว</p>
             </div>
             <div class="header-nav">
-                <a href="index.html" class="nav-btn">📝 กลับหน้าประเมินหลัก (EQ-5D-5L)</a>
+                <a href="index.html" class="nav-btn">📝 กลับหน้าประเมิน (EQ-5D-5L)</a>
             </div>
         </div>
     </header>
 
-    <div class="main-container">
-        <div class="col-left">
-            <div class="card">
-                <h2 class="card-title">➕ ลงทะเบียนนัดหมายเคสใหม่</h2>
-                <form id="schedulerForm">
-                    <div class="form-group">
-                        <label>HN ผู้ป่วย *</label>
-                        <input type="text" id="schedHN" required placeholder="เช่น HN691234">
-                    </div>
-                    <div class="form-group">
-                        <label>วันที่ประเมินครั้งแรก (Baseline) *</label>
-                        <input type="date" id="schedBaselineDate" required>
-                    </div>
-                    <button type="button" class="submit-btn" onclick="addPatientSchedule()">💾 บันทึกแผนการนัดหมาย</button>
-                </form>
+    <div class="container">
+        <div class="card">
+            <h2 class="card-title">🗓️ คำนวณวันนัดติดตามผลอัตโนมัติ</h2>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">ระบุวันที่คนไข้ทำแบบประเมินครั้งแรก (Baseline) เพื่อหาเกณฑ์กำหนดวันนัดรอบถัดไป</p>
+            
+            <div class="form-group">
+                <label for="baselineDate">วันที่ลงทะเบียนครั้งแรก (Baseline Date) *</label>
+                <input type="date" id="baselineDate" onchange="calculateFollowUpDates()">
             </div>
-        </div>
 
-        <div class="col-right">
-            <div class="card">
-                <h2 class="card-title">📋 ตารางตรวจสอบวันครบกำหนดประเมินและปุ่มทางลัด</h2>
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>HN</th>
-                                <th>Baseline</th>
-                                <th>ครบ 3 เดือน</th>
-                                <th>ครบ 6 เดือน</th>
-                                <th>ครบ 1 ปี</th>
-                                <th style="text-align:center;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="schedulerTable">
-                            </tbody>
-                    </table>
+            <div class="result-section">
+                <div class="result-row">
+                    <div class="timeline-label">
+                        <span class="dot dot-3m"></span>
+                        <span>ครบกำหนดติดตาม 3 เดือน</span>
+                    </div>
+                    <div class="date-output" id="date3m">-</div>
+                </div>
+
+                <div class="result-row">
+                    <div class="timeline-label">
+                        <span class="dot dot-6m"></span>
+                        <span>ครบกำหนดติดตาม 6 เดือน</span>
+                    </div>
+                    <div class="date-output" id="date6m">-</div>
+                </div>
+
+                <div class="result-row">
+                    <div class="timeline-label">
+                        <span class="dot dot-1y"></span>
+                        <span>ครบกำหนดติดตาม 1 ปี</span>
+                    </div>
+                    <div class="date-output" id="date1y">-</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
-
+        // ตั้งค่าวันที่ปัจจุบันในช่อง Input ทันทีเมื่อเปิดหน้าเว็บ
         window.onload = function() {
-            document.getElementById('schedBaselineDate').value = new Date().toISOString().split('T')[0];
-            renderSchedulerTable();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('baselineDate').value = today;
+            calculateFollowUpDates();
         };
 
-        function formatDateTH(dateString) {
-            const date = new Date(dateString);
-            return new Intl.DateTimeFormat('th-TH', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
-        }
+        // ฟังก์ชันลอจิกการคำนวณวันนัดล่วงหน้า
+        function calculateFollowUpDates() {
+            const inputDate = document.getElementById('baselineDate').value;
+            if (!inputDate) return;
 
-        function addPatientSchedule() {
-            const hn = document.getElementById('schedHN').value.trim();
-            const baseDateStr = document.getElementById('schedBaselineDate').value;
-
-            if(!hn || !baseDateStr) {
-                alert("กรุณากรอก HN และเลือกวันที่เริ่มต้นด้วยครับ");
-                return;
-            }
-
-            // คำนวณวันล่วงหน้า
-            let d3 = new Date(baseDateStr); d3.setMonth(d3.getMonth() + 3);
-            let d6 = new Date(baseDateStr); d6.setMonth(d6.getMonth() + 6);
-            let d1 = new Date(baseDateStr); d1.setFullYear(d1.getFullYear() + 1);
-
-            patientSchedules.push({
-                hn: hn,
-                baseline: baseDateStr,
-                m3: d3.toISOString().split('T')[0],
-                m6: d6.toISOString().split('T')[0],
-                m1y: d1.toISOString().split('T')[0]
+            // ฟังก์ชันแปลงรูปแบบวันที่ให้เป็นภาษาไทยที่อ่านง่ายทางการแพทย์ (เช่น 09 มิ.ย. 2026)
+            const thaiFormatter = new Intl.DateTimeFormat('th-TH', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
             });
 
-            localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
-            renderSchedulerTable();
-            
-            document.getElementById('schedHN').value = '';
-            alert(`เพิ่มแผนติดตามผลผู้ป่วย HN: ${hn} เรียบร้อยครับ`);
-        }
+            // 1. คำนวณรอบ 3 เดือน
+            let date3m = new Date(inputDate);
+            date3m.setMonth(date3m.getMonth() + 3);
+            document.getElementById('date3m').innerText = thaiFormatter.format(date3m);
 
-        function renderSchedulerTable() {
-            const tbody = document.getElementById('schedulerTable');
-            tbody.innerHTML = '';
+            // 2. คำนวณรอบ 6 เดือน
+            let date6m = new Date(inputDate);
+            date6m.setMonth(date6m.getMonth() + 6);
+            document.getElementById('date6m').innerText = thaiFormatter.format(date6m);
 
-            if(patientSchedules.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-row">ยังไม่มีรายชื่อผู้ป่วยในระบบนัดหมายขณะนี้</td></tr>';
-                return;
-            }
-
-            patientSchedules.forEach((p, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight:600; color:#0f172a;">${p.hn}</td>
-                    <td style="color:#64748b;">${formatDateTH(p.baseline)}</td>
-                    <td>
-                        <div style="margin-bottom:4px;">${formatDateTH(p.m3)}</div>
-                        <button class="btn-go bg-3m" onclick="goToAssessment('${p.hn}', '3 เดือน')">📝 ประเมิน 3M</button>
-                    </td>
-                    <td>
-                        <div style="margin-bottom:4px;">${formatDateTH(p.m6)}</div>
-                        <button class="btn-go bg-6m" onclick="goToAssessment('${p.hn}', '6 เดือน')">📝 ประเมิน 6M</button>
-                    </td>
-                    <td>
-                        <div style="margin-bottom:4px;">${formatDateTH(p.m1y)}</div>
-                        <button class="btn-go bg-1y" onclick="goToAssessment('${p.hn}', '1 ปี')">📝 ประเมิน 1Y</button>
-                    </td>
-                    <td style="text-align:center;">
-                        <button class="btn-del" onclick="deleteSchedule(${index})">🗑️ ลบ</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // ฟังก์ชันส่งค่า HN และ รอบประเมินข้ามไปหน้าฟอร์มหลัก
-        function goToAssessment(hn, period) {
-            // ส่งค่าผ่าน URL Parameters เพื่อให้หน้าหลักแกะข้อมูลไปกรอกอัตโนมัติ
-            window.location.href = `index.html?hn=${encodeURIComponent(hn)}&period=${encodeURIComponent(period)}`;
-        }
-
-        function deleteSchedule(index) {
-            if(confirm("ต้องการลบคนไข้รายนี้ออกจากตารางนัดหมายใช่หรือไม่?")) {
-                patientSchedules.splice(index, 1);
-                localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
-                renderSchedulerTable();
-            }
+            // 3. คำนวณรอบ 1 ปี
+            let date1y = new Date(inputDate);
+            date1y.setFullYear(date1y.getFullYear() + 1);
+            document.getElementById('date1y').innerText = thaiFormatter.format(date1y);
         }
     </script>
 </body>
