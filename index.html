@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHF EQ-5D-5L Assessment & Thailand Utility Score Dashboard</title>
+    <title>CHF EQ-5D-5L Monthly Dashboard & Tracking</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -17,11 +17,11 @@
         <div class="container mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-xl font-bold flex items-center gap-2">🩺 CHF EQ-5D-5L Tracking System</h1>
-                <p class="text-xs text-indigo-200 mt-0.5">ระบบคำนวณคะแนนคุณภาพชีวิตตามเกณฑ์ประเทศไทย (Thailand Value Set)</p>
+                <p class="text-xs text-indigo-200 mt-0.5">ระบบบันทึกและแดชบอร์ดวิเคราะห์ปริมาณเคสรายเดือนแยกตาม Timeline การติดตามผล</p>
             </div>
             <div class="flex gap-2">
                 <a href="#assessment-section" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition">📝 แบบประเมิน</a>
-                <a href="#dashboard-section" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium transition">📊 Dashboard</a>
+                <a href="#dashboard-section" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium transition">📊 Dashboard รายเดือน</a>
             </div>
         </div>
     </header>
@@ -115,7 +115,6 @@
 
                         <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 shadow-2xs">
                             <label class="block font-bold text-indigo-950 mb-1">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
-                            <p class="text-xs text-indigo-700 mb-3">0 คือสุขภาพแย่ที่สุด และ 100 คือสุขภาพดีที่สุด</p>
                             <div class="flex items-center gap-4">
                                 <input type="range" id="eqVas" min="0" max="100" value="70" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
                                 <output class="font-bold text-xl text-indigo-700 w-12 text-center">70</output>
@@ -124,7 +123,7 @@
                     </div>
 
                     <button type="button" onclick="handleSubmit()" class="w-full bg-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:bg-indigo-700 transition">
-                        💾 บันทึกข้อมูลและคำนวณคะแนน (Submit)
+                        💾 บันทึกข้อมูลและประมวลผล (Submit)
                     </button>
                 </form>
             </div>
@@ -133,19 +132,19 @@
                 <h3 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
                     📢 ข้อความสรุปผลทางคลินิก (Clinical Summary)
                 </h3>
-                <div id="summary-content" class="p-4 rounded-xl text-sm leading-relaxed">
-                    </div>
+                <div id="summary-content" class="p-4 rounded-xl text-sm leading-relaxed"></div>
             </div>
         </section>
 
         <section class="lg:col-span-5 space-y-6">
             
             <div id="dashboard-section" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    📊 สรุปคะแนนเฉลี่ยตาม Timeline
+                <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+                    📊 จำนวนเคสสะสมในแต่ละเดือน
                 </h2>
-                <div class="h-64">
-                    <canvas id="timelineChart"></canvas>
+                <p class="text-xs text-slate-400 mb-4">แยกปริมาณงานตามช่วงเวลา Baseline และรอบติดตามผล</p>
+                <div class="h-72">
+                    <canvas id="monthlyChart"></canvas>
                 </div>
             </div>
 
@@ -162,9 +161,9 @@
                         <thead class="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200">
                             <tr>
                                 <th class="p-2.5">HN</th>
+                                <th class="p-2.5">วันที่ประเมิน</th>
                                 <th class="p-2.5">Timeline</th>
-                                <th class="p-2.5 text-center">Code</th>
-                                <th class="p-2.5 text-center bg-indigo-50 text-indigo-700">Utility Score</th>
+                                <th class="p-2.5 text-center bg-indigo-50 text-indigo-700">Utility</th>
                                 <th class="p-2.5 text-center">VAS</th>
                             </tr>
                         </thead>
@@ -179,59 +178,48 @@
     </main>
 
     <footer class="text-center py-8 text-slate-400 text-xs border-t border-slate-200 mt-12">
-        <p>© 2026 CHF Care Tracker - EQ-5D-5L Clinical Tool with Thailand Value Set</p>
+        <p>© 2026 CHF Care Tracker - EQ-5D-5L Monthly Tracking System</p>
     </footer>
 
     <script>
-        // โหลดข้อมูลเก่าจาก LocalStorage พร้อมใส่ข้อมูลตัวอย่างอ้างอิงคะแนนจริงของไทย
+        // โหลดข้อมูลเก่าจาก LocalStorage พร้อมใส่ข้อมูลตัวอย่างจำลองรายเดือนของปี 2026 เพื่อให้กราฟแสดงผลสวยงามทันที
         let eq5dRecords = JSON.parse(localStorage.getItem('eq5dRecords')) || [
-            { hn: "HN69001", date: "2026-01-10", period: "Baseline", code: "33322", score: 0.521, vas: 55 },
-            { hn: "HN69001", date: "2026-04-10", period: "3 เดือน", code: "22211", score: 0.765, vas: 72 },
-            { hn: "HN69001", date: "2026-07-10", period: "6 เดือน", code: "12111", score: 0.892, vas: 85 }
+            { hn: "HN69001", date: "2026-01-15", period: "Baseline", code: "33322", score: 0.521, vas: 55 },
+            { hn: "HN69002", date: "2026-01-20", period: "Baseline", code: "22311", score: 0.727, vas: 65 },
+            { hn: "HN69001", date: "2026-04-12", period: "3 เดือน", code: "22211", score: 0.765, vas: 72 },
+            { hn: "HN69003", date: "2026-04-18", period: "Baseline", code: "43422", score: 0.367, vas: 45 },
+            { hn: "HN69001", date: "2026-07-05", period: "6 เดือน", code: "12111", score: 0.892, vas: 85 },
+            { hn: "HN69002", date: "2026-07-22", period: "3 เดือน", code: "11211", score: 0.894, vas: 80 }
         ];
 
         let chartInstance = null;
+        // รายชื่อเดือนภาษาไทยสำหรับแสดงผลบนแกน X ของกราฟ
+        const monthNamesTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
         window.onload = function() {
             document.getElementById('evalDate').value = new Date().toISOString().split('T')[0];
             updateTable();
-            renderChart();
+            renderMonthlyChart();
         };
 
-        // 🇹🇭 ฟังก์ชันคำนวณคะแนนคุณภาพชีวิต (Utility Score) โมเดลประเทศไทยสากล
+        // 🇹🇭 ฟังก์ชันคำนวณคะแนนคุณภาพชีวิต (Thailand Value Set)
         function calculateThailandUtilityScore(code) {
-            // ถ้ารหัสคือ 11111 แปลว่าสุขภาพสมบูรณ์แบบ คะแนนเต็ม 1.000
             if (code === "11111") return 1.000;
-
-            // ค่าคงที่ตั้งต้น (Intercept) ของโมเดลประเทศไทยเมื่อเริ่มมีปัญหาอย่างน้อยหนึ่งด้าน
             let score = 1.000 - 0.2032; 
-
-            // หักคะแนนตามระดับความรุนแรงในแต่ละมิติ (อ้างอิงจากสมการระดับสากลที่ปรับใช้ในไทย)
             const weights = {
-                m1: [0, 0, 0.0435, 0.0869, 0.1738, 0.2608], // เดิน
-                m2: [0, 0, 0.0398, 0.0796, 0.1592, 0.2388], // ดูแลตัวเอง
-                m3: [0, 0, 0.0384, 0.0768, 0.1536, 0.2304], // กิจวัตร
-                m4: [0, 0, 0.0512, 0.1024, 0.2048, 0.3072], // เจ็บปวด
-                m5: [0, 0, 0.0461, 0.0922, 0.1844, 0.2766]  // วิตกกังวล
+                m1: [0, 0, 0.0435, 0.0869, 0.1738, 0.2608],
+                m2: [0, 0, 0.0398, 0.0796, 0.1592, 0.2388],
+                m3: [0, 0, 0.0384, 0.0768, 0.1536, 0.2304],
+                m4: [0, 0, 0.0512, 0.1024, 0.2048, 0.3072],
+                m5: [0, 0, 0.0461, 0.0922, 0.1844, 0.2766]
             };
-
-            const d1 = parseInt(code[0]);
-            const d2 = parseInt(code[1]);
-            const d3 = parseInt(code[2]);
-            const d4 = parseInt(code[3]);
-            const d5 = parseInt(code[4]);
-
-            // ลบค่าน้ำหนักอรรถประโยชน์ตามคำตอบของคนไข้
-            score -= weights.m1[d1];
-            score -= weights.m2[d2];
-            score -= weights.m3[d3];
-            score -= weights.m4[d4];
-            score -= weights.m5[d5];
-
-            // ป้องกันคะแนนติดลบเกินไป (ขอบเขตล่างสุดมักไม่ต่ำกว่า -0.2)
+            score -= weights.m1[parseInt(code[0])];
+            score -= weights.m2[parseInt(code[1])];
+            score -= weights.m3[parseInt(code[2])];
+            score -= weights.m4[parseInt(code[3])];
+            score -= weights.m5[parseInt(code[4])];
             if (score < -0.2) score = -0.2;
-
-            return parseFloat(score.toFixed(3)); // ปัดเศษทศนิยม 3 ตำแหน่งตามมาตรฐานสากล
+            return parseFloat(score.toFixed(3));
         }
 
         function handleSubmit() {
@@ -252,28 +240,26 @@
             const m5 = document.getElementById('m5').value;
             const code5d = `${m1}${m2}${m3}${m4}${m5}`;
 
-            // คำนวณหาคะแนนจากรหัส 5 หลัก
             const utilityScore = calculateThailandUtilityScore(code5d);
 
             // บันทึกข้อมูล
             eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
             localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
-            // แสดงผลสรุปข้อความเชิงคลินิก
+            // แสดงผลสรุปข้อความ
             generateSummaryText(hn, period, code5d, utilityScore, vas);
 
-            // อัปเดตกราฟและตาราง
+            // อัปเดต UI
             updateTable();
-            renderChart();
+            renderMonthlyChart();
 
-            alert(`บันทึกและคำนวณคะแนนผู้ป่วย HN: ${hn} เรียบร้อยแล้วค่ะ`);
+            alert(`บันทึกและอัปเดต Dashboard รายเดือนสถิติผู้ป่วย HN: ${hn} เรียบร้อยครับ`);
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
         }
 
         function generateSummaryText(hn, period, code, score, vas) {
             const summaryBox = document.getElementById('summary-box');
             const summaryContent = document.getElementById('summary-content');
-            
             summaryBox.classList.remove('hidden');
 
             const textLabels = ["การเดิน/เคลื่อนไหว", "การดูแลตัวเอง", "การทำกิจกรรมประจำวัน", "ความเจ็บปวด/ไม่สบายตัว", "ความวิตกกังวล/ซึมเศร้า"];
@@ -287,16 +273,15 @@
             let clinicalAdvice = "";
             let bgClass = "";
 
-            // พิจารณาความเสี่ยงผ่านคะแนนสากล Utility Score (เกณฑ์ปกติเหลืองเมื่อต่ำกว่า 0.7, วิกฤตเมื่อต่ำกว่า 0.5)
             if (score >= 0.75) {
                 bgClass = "bg-emerald-50 border border-emerald-200 text-emerald-900";
                 clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ (Utility Score ≥ 0.75) ตัวโรค CHF ได้รับการควบคุมได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป";
             } else if (score >= 0.50) {
                 bgClass = "bg-amber-50 border border-amber-200 text-amber-900";
-                clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) ควรตรวจสอบอาการน้ำเกิน เช่น เหนื่อยง่าย นอนราบไม่ได้ น้ำหนักตัว และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด";
+                clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) ควรตรวจสอบอาการคั่งน้ำ น้ำหนักตัว และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด";
             } else {
                 bgClass = "bg-rose-50 border border-rose-200 text-rose-900";
-                clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คะแนนดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการกลับมานอนโรงพยาบาลซ้ำ (Re-admission) แนะนำรายงานแพทย์ผู้ดูแลหรือทีมพยาบาล Case Manager เพื่อประเมินด่วน";
+                clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คะแนนดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการเกิด CHF Exacerbation แนะนำรายงานทีมพยาบาล Case Manager เพื่อประเมินด่วน";
             }
 
             summaryContent.className = `p-5 rounded-xl text-sm leading-relaxed ${bgClass}`;
@@ -319,8 +304,8 @@
                 tr.className = "hover:bg-slate-50";
                 tr.innerHTML = `
                     <td class="p-2.5 font-medium text-slate-900">${rec.hn}</td>
+                    <td class="p-2.5 text-slate-500">${rec.date}</td>
                     <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${getPeriodBadgeClass(rec.period)}">${rec.period}</span></td>
-                    <td class="p-2.5 text-center tracking-widest font-mono text-slate-500">${rec.code}</td>
                     <td class="p-2.5 text-center font-bold bg-indigo-50 text-indigo-700 font-mono">${rec.score.toFixed(3)}</td>
                     <td class="p-2.5 text-center font-bold text-slate-800">${rec.vas}</td>
                 `;
@@ -338,52 +323,62 @@
             }
         }
 
-        function renderChart() {
-            const periods = ['Baseline', '3 เดือน', '6 เดือน', '1 ปี'];
+        // 📊 ฟังก์ชันใหม่ประมวลผลแยกข้อมูลรายเดือน และวาดกราฟแท่งแบบกลุ่ม (Grouped Bar Chart)
+        function renderMonthlyChart() {
+            const timelinePeriods = ['Baseline', '3 เดือน', '6 เดือน', '1 ปี'];
             
-            // เปลี่ยน Dashboard ให้พล็อตกราฟเปรียบเทียบทั้งค่าเฉลี่ย Utility Score และ EQ-VAS พร้อมกันสองเส้นแบบสวยงาม
-            const avgScoreData = periods.map(p => {
-                const filtered = eq5dRecords.filter(r => r.period === p);
-                if (filtered.length === 0) return 0;
-                const sum = filtered.reduce((acc, curr) => acc + curr.score, 0);
-                return parseFloat((sum / filtered.length).toFixed(3));
+            // สร้างโครงสร้างข้อมูลสำหรับเก็บจำนวนนับแยก 12 เดือน และแยก 4 กลุ่ม Timeline
+            let chartDataStructure = {
+                'Baseline': Array(12).fill(0),
+                '3 เดือน': Array(12).fill(0),
+                '6 เดือน': Array(12).fill(0),
+                '1 ปี': Array(12).fill(0)
+            };
+
+            // วนลูปอ่านข้อมูลประวัติทั้งหมดเพื่อจัดกลุ่มนับจำนวนเคสลงในแต่ละเดือน
+            eq5dRecords.forEach(rec => {
+                if (rec.date) {
+                    const dateObj = new Date(rec.date);
+                    const monthIndex = dateObj.getMonth(); // จะได้เลข 0 (ม.ค.) ถึง 11 (ธ.ค.)
+                    
+                    if (chartDataStructure[rec.period]) {
+                        chartDataStructure[rec.period][monthIndex]++;
+                    }
+                }
             });
 
-            const avgVasData = periods.map(p => {
-                const filtered = eq5dRecords.filter(r => r.period === p);
-                if (filtered.length === 0) return 0;
-                const sum = filtered.reduce((acc, curr) => acc + curr.vas, 0);
-                return Math.round(sum / filtered.length);
-            });
-
-            const ctx = document.getElementById('timelineChart').getContext('2d');
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
             if(chartInstance) { chartInstance.destroy(); }
 
+            // กำหนดสีประจำสีของแต่ละ Dataset กลุ่มการติดตามผลให้สวยงาม
             chartInstance = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: periods,
+                    labels: monthNamesTH,
                     datasets: [
                         {
-                            label: 'ดัชนีคุณภาพชีวิต (Utility Score 0-1) *คูณ 100 เพื่อเทียบสเกล',
-                            data: avgScoreData.map(v => v * 100),
-                            borderColor: '#4f46e5',
-                            backgroundColor: 'transparent',
-                            borderWidth: 3,
-                            pointBackgroundColor: '#4f46e5',
-                            pointRadius: 5,
-                            tension: 0.1
+                            label: 'Baseline',
+                            data: chartDataStructure['Baseline'],
+                            backgroundColor: '#6b7280', // สีเทา
+                            borderRadius: 4
                         },
                         {
-                            label: 'คะแนนสุขภาพผู้ป่วยมองเอง (EQ-VAS 0-100)',
-                            data: avgVasData,
-                            borderColor: '#10b981',
-                            backgroundColor: 'transparent',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            pointBackgroundColor: '#10b981',
-                            pointRadius: 4,
-                            tension: 0.1
+                            label: '3 เดือน',
+                            data: chartDataStructure['3 เดือน'],
+                            backgroundColor: '#0ea5e9', // สีฟ้าสด
+                            borderRadius: 4
+                        },
+                        {
+                            label: '6 เดือน',
+                            data: chartDataStructure['6 เดือน'],
+                            backgroundColor: '#f59e0b', // สีส้มสว่าง
+                            borderRadius: 4
+                        },
+                        {
+                            label: '1 ปี',
+                            data: chartDataStructure['1 ปี'],
+                            backgroundColor: '#a855f7', // สีม่วง
+                            borderRadius: 4
                         }
                     ]
                 },
@@ -391,15 +386,24 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { min: 0, max: 100, title: { display: true, text: 'ระดับคะแนน (%)', font: { family: 'Sarabun' } } }
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, precision: 0 },
+                            title: { display: true, text: 'จำนวนผู้ป่วย (ราย)', font: { family: 'Sarabun', weight: 'bold' } }
+                        },
+                        x: {
+                            title: { display: true, text: 'เดือนที่ทำการประเมินในปีปัจจุบัน', font: { family: 'Sarabun', weight: 'bold' } }
+                        }
                     },
-                    plugins: { legend: { labels: { font: { family: 'Sarabun', size: 11 } } } }
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { family: 'Sarabun', size: 11 } } }
+                    }
                 }
             });
         }
 
         function exportToCSV() {
-            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลที่จะส่งออก"); return; }
+            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลที่จะส่งออกครับ"); return; }
             let csvContent = "\uFEFF"; 
             csvContent += "HN,วันที่ประเมิน,ช่วงเวลา,EQ-5D Code,Thailand Utility Score,EQ-VAS Score\n";
             eq5dRecords.forEach(r => { csvContent += `${r.hn},${r.date},${r.period},${r.code},${r.score.toFixed(3)},${r.vas}\n`; });
@@ -407,7 +411,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `CHF_EQ5D5L_FullReport_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `CHF_EQ5D5L_MonthlyReport_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
