@@ -5,150 +5,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHF EQ-5D-5L Monthly Dashboard & Tracking</title>
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #334155; margin: 0; padding: 0; }
-        header { background-color: #4338ca; color: white; padding: 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: flex; flex-wrap: wrap; gap: 30px; }
-        .col-left { flex: 1; min-width: 350px; background: white; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; }
-        .col-right { width: 400px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; }
-        h1, h2, h3 { margin-top: 0; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-        .form-group select, .form-group input[type="text"], .form-group input[type="date"] { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
-        .flex-3 { display: flex; gap: 10px; background: #f1f5f9; padding: 10px; border-radius: 12px; margin-bottom: 15px; }
-        .flex-3 div { flex: 1; }
-        button { width: 100%; background: #4338ca; color: white; border: none; padding: 12px; font-weight: bold; border-radius: 10px; cursor: pointer; font-size: 16px; }
-        button:hover { background: #3730a3; }
-        .btn-group { display: flex; gap: 6px; }
-        .btn-export { background: #10b981; padding: 6px 12px; width: auto; font-size: 12px; border-radius: 6px; }
-        .btn-export:hover { background: #047857; }
-        .btn-clear { background: #ef4444; padding: 6px 12px; width: auto; font-size: 12px; border-radius: 6px; }
-        .btn-clear:hover { background: #b91c1c; }
+        /* รีเซ็ตและตั้งค่าธีมสไตล์คล้ายระบบเดิม */
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
         
-        .chart-container { display: flex; height: 180px; align-items: flex-end; justify-content: space-around; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; margin-top: 20px; }
-        .month-group { display: flex; flex-direction: column; align-items: center; width: 8%; }
-        .bars-flex { display: flex; align-items: flex-end; gap: 2px; height: 140px; width: 100%; justify-content: center; }
-        .bar { width: 6px; min-height: 2px; border-radius: 2px 2px 0 0; position: relative; }
-        .bar:hover::after { content: attr(data-value); position: absolute; top: -20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; font-size: 10px; padding: 2px 4px; border-radius: 4px; z-index: 10; white-space: nowrap; }
-        .bar-baseline { background-color: #64748b; }
-        .bar-3m { background-color: #0ea5e9; }
-        .bar-6m { background-color: #f59e0b; }
-        .bar-1y { background-color: #a855f7; }
-        .month-label { font-size: 11px; margin-top: 5px; color: #64748b; font-weight: bold; }
-        .legend { display: flex; justify-content: center; gap: 10px; font-size: 11px; margin-top: 15px; }
-        .legend-item { display: flex; align-items: center; gap: 4px; }
-        .dot { width: 10px; height: 10px; border-radius: 5px; display: inline-block; }
+        /* Header ธีมสีเดิม */
+        header { background-color: #4338ca; color: white; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .header-wrap { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .header-title p { font-size: 12px; margin: 4px 0 0 0; color: #c7d2fe; }
+        .header-nav { display: flex; gap: 8px; }
+        .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .nav-btn:hover { background-color: #6366f1; }
+        .nav-btn-green { background-color: #059669; }
+        .nav-btn-green:hover { background-color: #10b981; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
-        th, td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
-        th { background: #f8fafc; color: #64748b; }
-        .badge { padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold; }
-        .hidden { display: none; }
-        .summary-alert { padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 14px; line-height: 1.5; }
-        .empty-text { text-align: center; color: #94a3b8; padding: 20px; font-style: italic; }
+        /* การจัดหน้าแบบเดิม (7 Columns vs 5 Columns) */
+        .main-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 30px; }
+        @media (max-width: 1024px) { .main-container { grid-template-columns: 1fr; } .col-left, .col-right { grid-column: span 12 !important; } }
+        .col-left { grid-column: span 7; display: flex; flex-direction: column; gap: 24px; }
+        .col-right { grid-column: span 5; display: flex; flex-direction: column; gap: 24px; }
+
+        /* การ์ดสไตล์เดิม */
+        .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+        .card-subtitle { font-size: 12px; color: #94a3b8; margin: 0 0 16px 0; display: block; }
+        
+        /* ฟอร์มและ Grid ข้อมูลผู้ป่วย */
+        .patient-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; background-color: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
+        @media (max-width: 640px) { .patient-grid { grid-template-columns: 1fr; } }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
+        .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: white; width: 100%; box-sizing: border-box; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #6366f1; }
+
+        /* คำถาม 5 ด้าน */
+        .q-section-title { font-size: 14px; font-weight: 700; color: #312e81; text-transform: uppercase; tracking: 0.05em; margin: 20px 0 12px 0; }
+        .q-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .q-box label { block: true; font-weight: 500; font-size: 14px; color: #0f172a; display: block; margin-bottom: 8px; }
+        
+        /* ส่วนของ EQ-VAS */
+        .vas-box { background-color: #eef2ff; border: 1px solid #e0e7ff; border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+        .vas-flex { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+        .vas-slider { flex: 1; height: 8px; background: #c7d2fe; border-radius: 4px; outline: none; -webkit-appearance: none; cursor: pointer; }
+        .vas-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #4338ca; border-radius: 50%; }
+        .vas-output { font-size: 20px; font-weight: 700; color: #4338ca; width: 48px; text-align: center; }
+
+        /* ปุ่มกด */
+        .submit-btn { width: 100%; background: #4338ca; color: white; border: none; padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.2); }
+        .submit-btn:hover { background: #3730a3; }
+        
+        .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+        .table-btn-group { display: flex; gap: 6px; }
+        .btn-action { border: none; padding: 6px 12px; font-size: 12px; font-weight: 500; border-radius: 6px; cursor: pointer; }
+        .btn-csv { background: #059669; color: white; }
+        .btn-csv:hover { background: #047857; }
+        .btn-del { background: #ef4444; color: white; }
+        .btn-del:hover { background: #b91c1c; }
+
+        /* กราฟแท่งรายเดือนแบบดั้งเดิม (Pure CSS/SVG ไม่พึ่งคลังนอก) */
+        .chart-wrapper { height: 240px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; margin-top: 16px; }
+        .chart-month-col { width: 8%; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+        .chart-bars-container { display: flex; align-items: flex-end; gap: 2px; height: 200px; width: 100%; justify-content: center; }
+        .chart-bar { width: 6px; min-height: 2px; border-radius: 2px 2px 0 0; position: relative; transition: height 0.3s; }
+        .chart-bar:hover::after { content: attr(data-tip); position: absolute; top: -24px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; z-index: 50; white-space: nowrap; }
+        .cb-base { background-color: #64748b; }
+        .cb-3m { background-color: #0ea5e9; }
+        .cb-6m { background-color: #f59e0b; }
+        .cb-1y { background-color: #a855f7; }
+        .chart-label { font-size: 11px; color: #64748b; font-weight: 600; margin-top: 6px; }
+        .chart-legend { display: flex; justify-content: center; gap: 12px; font-size: 11px; margin-top: 16px; flex-wrap: wrap; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+        /* กล่องข้อความสรุปผลทางคลินิก (Clinical Summary แบบเดิมเป๊ะ) */
+        .summary-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 20px 0 12px 0; display: flex; align-items: center; gap: 6px; }
+        .summary-alert-box { padding: 20px; border-radius: 12px; font-size: 14px; line-height: 1.6; border: 1px solid transparent; }
+        .sab-green { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+        .sab-amber { background-color: #fffbec; border-color: #fef3c7; color: #92400e; }
+        .sab-rose { background-color: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+        .code-pill { font-family: monospace; font-weight: 700; background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); margin: 0 2px; }
+
+        /* ตารางสไตล์เดิม */
+        .table-scroll { max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; font-weight: 600; color: #64748b; }
+        .tbl-utility { font-weight: 700; color: #4338ca; background-color: #f5f3ff; text-align: center; font-family: monospace; }
+        .t-badge { padding: 2px 6px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+        .tb-base { background: #f1f5f9; color: #475569; }
+        .tb-3m { background: #e0f2fe; color: #0369a1; }
+        .tb-6m { background: #fef3c7; color: #b45309; }
+        .tb-1y { background: #f3e8ff; color: #6b21a8; }
+        .hidden { display: none !important; }
+        .empty-row { text-align: center; color: #94a3b8; padding: 24px; font-style: italic; }
     </style>
 </head>
 <body>
 
     <header>
-        <h2 style="margin:0;">🩺 CHF EQ-5D-5L Tracking System</h2>
-        <p style="margin:5px 0 0 0; font-size:12px; opacity:0.8;">ระบบประเมินคุณภาพชีวิตผู้ป่วยภาวะหัวใจล้มเหลวและแดชบอร์ดสถิติรายเดือน</p>
+        <div class="header-wrap">
+            <div class="header-title">
+                <h1>🩺 CHF EQ-5D-5L Tracking System</h1>
+                <p>ระบบบันทึกและแดชบอร์ดวิเคราะห์ปริมาณเคสรายเดือนแยกตาม Timeline การติดตามผล</p>
+            </div>
+            <div class="header-nav">
+                <a href="#assessment-section" class="nav-btn">📝 แบบประเมิน</a>
+                <a href="#dashboard-section" class="nav-btn nav-btn-green">📊 Dashboard รายเดือน</a>
+            </div>
+        </div>
     </header>
 
-    <div class="container">
+    <div class="main-container">
         
         <div class="col-left" id="assessment-section">
-            <h3 style="border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; color: #1e3a8a;">📝 แบบประเมินคุณภาพชีวิต</h3>
-            
-            <form id="eq5dForm">
-                <div class="flex-3">
-                    <div>
-                        <label>HN ผู้ป่วย *</label>
-                        <input type="text" id="patientHN" required placeholder="เช่น HN691234">
+            <div class="card">
+                <h2 class="card-title">📝 บันทึกแบบประเมินคุณภาพชีวิต (EQ-5D-5L)</h2>
+                <span class="card-subtitle" style="margin-bottom:20px;">กรอกข้อมูลพื้นฐานและระบุระดับผลการประเมินรายด้านของผู้ป่วย</span>
+                
+                <form id="eq5dForm">
+                    <div class="patient-grid">
+                        <div class="form-group">
+                            <label>HN ผู้ป่วย *</label>
+                            <input type="text" id="patientHN" required placeholder="เช่น HN691234">
+                        </div>
+                        <div class="form-group">
+                            <label>วันที่ประเมิน *</label>
+                            <input type="date" id="evalDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ช่วงเวลาประเมิน *</label>
+                            <select id="timePeriod" required>
+                                <option value="Baseline">Baseline (แรกรับ)</option>
+                                <option value="3 เดือน">ครบประเมิน 3 เดือน</option>
+                                <option value="6 เดือน">ครบประเมิน 6 เดือน</option>
+                                <option value="1 ปี">ครบประเมิน 1 ปี</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label>วันที่ประเมิน *</label>
-                        <input type="date" id="evalDate" required>
-                    </div>
-                    <div>
-                        <label>ช่วงเวลา *</label>
-                        <select id="timePeriod" required>
-                            <option value="Baseline">Baseline</option>
-                            <option value="3 เดือน">ครบ 3 เดือน</option>
-                            <option value="6 เดือน">ครบ 6 เดือน</option>
-                            <option value="1 ปี">ครบ 1 ปี</option>
+
+                    <div class="q-section-title">ระบุระดับปัญหาในแต่ละด้าน (ระดับ 1 - 5)</div>
+
+                    <div class="q-box">
+                        <label>1. การเคลื่อนไหว (Mobility)</label>
+                        <select id="m1">
+                            <option value="1">1 - ฉันไม่มีความลำบากในการเดิน</option>
+                            <option value="2">2 - ฉันมีความลำบากในการเดินเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีความลำบากในการเดินปานกลาง</option>
+                            <option value="4">4 - ฉันมีความลำบากในการเดินอย่างมาก</option>
+                            <option value="5">5 - ฉันไม่สามารถเดินไปไหนมาไหนได้เลย</option>
                         </select>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>1. การเคลื่อนไหว (Mobility)</label>
-                    <select id="m1">
-                        <option value="1">1 - ไม่มีความลำบากในการเดิน</option>
-                        <option value="2">2 - มีความลำบากในการเดินเล็กน้อย</option>
-                        <option value="3">3 - มีความลำบากในการเดินปานกลาง</option>
-                        <option value="4">4 - มีความลำบากในการเดินอย่างมาก</option>
-                        <option value="5">5 - ไม่สามารถเดินไปไหนมาไหนได้เลย</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>2. การดูแลตัวเอง (Self-Care)</label>
-                    <select id="m2">
-                        <option value="1">1 - ไม่มีความลำบากในการอาบน้ำหรือแต่งตัว</option>
-                        <option value="2">2 - มีความลำบากในการอาบน้ำหรือแต่งตัวเล็กน้อย</option>
-                        <option value="3">3 - มีความลำบากในการอาบน้ำหรือแต่งตัวปานกลาง</option>
-                        <option value="4">4 - มีความลำบากในการอาบน้ำหรือแต่งตัวอย่างมาก</option>
-                        <option value="5">5 - ไม่สามารถอาบน้ำหรือแต่งตัวได้เลย</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>3. การทำกิจกรรมประจำวัน (Usual Activities)</label>
-                    <select id="m3">
-                        <option value="1">1 - ไม่มีความลำบากในการทำกิจกรรมประจำวัน</option>
-                        <option value="2">2 - มีความลำบากในการทำกิจกรรมประจำวันเล็กน้อย</option>
-                        <option value="3">3 - มีความลำบากในการทำกิจกรรมประจำวันปานกลาง</option>
-                        <option value="4">4 - มีความลำบากในการทำกิจกรรมประจำวันอย่างมาก</option>
-                        <option value="5">5 - ไม่สามารถทำกิจกรรมประจำวันได้เลย</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>4. อาการเจ็บปวด/ไม่สบายตัว (Pain/Discomfort)</label>
-                    <select id="m4">
-                        <option value="1">1 - ไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</option>
-                        <option value="2">2 - มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</option>
-                        <option value="3">3 - มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</option>
-                        <option value="4">4 - มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</option>
-                        <option value="5">5 - มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวร้ายแรงที่สุด</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>5. อาการวิตกกังวล/ซึมเศร้า (Anxiety/Depression)</label>
-                    <select id="m5">
-                        <option value="1">1 - ไม่รู้สึกวิตกกังวลหรือซึมเศร้า</option>
-                        <option value="2">2 - รู้สึกวิตกกังวลหรือซึมเศร้าเล็กน้อย</option>
-                        <option value="3">3 - รู้สึกวิตกกังวลหรือซึมเศร้าปานกลาง</option>
-                        <option value="4">4 - รู้สึกวิตกกังวลหรือซึมเศร้าอย่างมาก</option>
-                        <option value="5">5 - รู้สึกวิตกกังวลหรือซึมเศร้าร้ายแรงที่สุด</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="background:#e0e7ff; padding:12px; border-radius:10px;">
-                    <label style="color:#1e3a8a;">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <input type="range" id="eqVas" min="0" max="100" value="70" style="flex:1;" oninput="document.getElementById('vasVal').innerText = this.value">
-                        <span id="vasVal" style="font-size:20px; font-weight:bold; color:#4338ca; width:40px; text-align:center;">70</span>
+                    <div class="q-box">
+                        <label>2. การดูแลตัวเอง (Self-Care)</label>
+                        <select id="m2">
+                            <option value="1">1 - ฉันไม่มีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเอง</option>
+                            <option value="2">2 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองปานกลาง</option>
+                            <option value="4">4 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองอย่างมาก</option>
+                            <option value="5">5 - ฉันไม่สามารถอาบน้ำหรือแต่งตัวด้วยตัวเองได้เลย</option>
+                        </select>
                     </div>
-                </div>
 
-                <button type="button" onclick="handleSubmit()">💾 บันทึกข้อมูล (Submit)</button>
-            </form>
+                    <div class="q-box">
+                        <label>3. การทำกิจกรรมที่ชอบ/กิจวัตรประจำวัน (Usual Activities)</label>
+                        <select id="m3">
+                            <option value="1">1 - ฉันไม่มีความลำบากในการทำกิจกรรมประจำวัน (งานบ้าน, ทำงาน, เรียน, พักผ่อน)</option>
+                            <option value="2">2 - ฉันมีความลำบากในการทำกิจกรรมประจำวันเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีความลำบากในการทำกิจกรรมประจำวันปานกลาง</option>
+                            <option value="4">4 - ฉันมีความลำบากในการทำกิจกรรมประจำวันอย่างมาก</option>
+                            <option value="5">5 - ฉันไม่สามารถทำกิจกรรมประจำวันได้เลย</option>
+                        </select>
+                    </div>
 
-            <div id="summary-box" class="hidden">
-                <h4 style="margin: 20px 0 5px 0;">📢 ข้อความสรุปผลทางคลินิก</h4>
+                    <div class="q-box">
+                        <label>4. อาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</label>
+                        <select id="m4">
+                            <option value="1">1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</option>
+                            <option value="2">2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</option>
+                            <option value="4">4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</option>
+                            <option value="5">5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</option>
+                        </select>
+                    </div>
+
+                    <div class="q-box">
+                        <label>5. อาการวิตกกังวล หรือซึมเศร้า (Anxiety / Depression)</label>
+                        <select id="m5">
+                            <option value="1">1 - ฉันไม่รู้สึกวิตกกังวลหรือซึมเศร้า</option>
+                            <option value="2">2 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าเล็กน้อย</option>
+                            <option value="3">3 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าปานกลาง</option>
+                            <option value="4">4 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างมาก</option>
+                            <option value="5">5 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างร้ายแรงที่สุด</option>
+                        </select>
+                    </div>
+
+                    <div class="vas-box">
+                        <label style="font-weight:700; color:#1e3a8a;">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
+                        <p style="font-size:12px; color:#4f46e5; margin:2px 0 8px 0;">0 คือสุขภาพแย่ที่สุดที่จินตนาการได้ และ 100 คือสุขภาพดีที่สุดที่จินตนาการได้</p>
+                        <div class="vas-flex">
+                            <input type="range" id="eqVas" class="vas-slider" min="0" max="100" value="70" oninput="document.getElementById('vasVal').innerText = this.value">
+                            <span id="vasVal" class="vas-output">70</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="submit-btn" onclick="handleSubmit()">💾 บันทึกข้อมูลและประมวลผล (Submit)</button>
+                </form>
+            </div>
+
+            <div id="summary-box" class="card hidden">
+                <h3 class="summary-title">📢 ข้อความสรุปผลทางคลินิก (Clinical Summary)</h3>
                 <div id="summary-content"></div>
             </div>
         </div>
@@ -156,49 +221,52 @@
         <div class="col-right">
             
             <div class="card" id="dashboard-section">
-                <h3 style="margin-bottom:2px; font-size:16px;">📊 จำนวนเคสสะสมในแต่ละเดือน</h3>
-                <span style="font-size:11px; color:#64748b;">สถิติจำนวนผู้ประเมินแยกตามกลุ่มเป้าหมาย</span>
+                <h2 class="card-title" style="border:none; padding:0;">📊 จำนวนเคสสะสมในแต่ละเดือน</h2>
+                <span class="card-subtitle">แยกปริมาณงานตามช่วงเวลา Baseline และรอบติดตามผล</span>
                 
-                <div class="chart-container" id="pureCssChart">
+                <div class="chart-wrapper" id="monthlyChart">
                     </div>
 
-                <div class="legend">
-                    <div class="legend-item"><span class="dot" style="background:#64748b;"></span>Base</div>
-                    <div class="legend-item"><span class="dot" style="background:#0ea5e9;"></span>3M</div>
-                    <div class="legend-item"><span class="dot" style="background:#f59e0b;"></span>6M</div>
-                    <div class="legend-item"><span class="dot" style="background:#a855f7;"></span>1Y</div>
+                <div class="chart-legend">
+                    <div style="display:flex; align-items:center; gap:4px;"><span class="legend-dot cb-base"></span> Baseline</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><span class="legend-dot cb-3m"></span> 3 เดือน</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><span class="legend-dot cb-6m"></span> 6 เดือน</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><span class="legend-dot cb-1y"></span> 1 ปี</div>
                 </div>
             </div>
 
             <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h3 style="margin:0; font-size:15px;">📋 รายการบันทึกล่าสุด</h3>
-                    <div class="btn-group">
-                        <button type="button" class="btn-export" onclick="exportToCSV()">📥 Export CSV</button>
-                        <button type="button" class="btn-clear" onclick="clearAllData()">🗑️ ล้างทั้งหมด</button>
+                <div class="flex-between">
+                    <h2 class="card-title" style="border:none; padding:0; font-size:16px;">📋 รายการบันทึกเมื่อเร็วๆ นี้</h2>
+                    <div class="table-btn-group">
+                        <button type="button" class="btn-action btn-csv" onclick="exportToCSV()">📥 Export Excel/CSV</button>
+                        <button type="button" class="btn-action btn-del" onclick="clearAllData()">🗑️ ล้างทั้งหมด</button>
                     </div>
                 </div>
-                <div style="max-height:220px; overflow-y:auto; border:1px solid #f1f5f9;">
+                
+                <div class="table-scroll">
                     <table>
                         <thead>
                             <tr>
                                 <th>HN</th>
+                                <th>วันที่</th>
                                 <th>Timeline</th>
                                 <th style="text-align:center;">Utility</th>
                                 <th style="text-align:center;">VAS</th>
                             </tr>
                         </thead>
-                        <tbody id="recordsTable"></tbody>
+                        <tbody id="recordsTable">
+                            </tbody>
                     </table>
                 </div>
+                <p style="font-size:10px; color:#94a3b8; margin:8px 0 0 0;">* หมายเหตุ: ข้อมูลจะบันทึกอยู่ในหน่วยความจำบราวเซอร์จำลองเครื่องคุณ</p>
             </div>
-
         </div>
 
     </div>
 
     <script>
-        // เคลียร์ข้อมูลทดสอบเริ่มต้นออกทั้งหมด (เริ่มต้นระบบด้วยอาร์เรย์ว่าง)
+        // เคลียร์ข้อมูลทดสอบเริ่มต้นออกเกลี้ยงตามคำสั่ง (พร้อมใช้งานแบบคลินิกว่างเปล่า)
         let eq5dRecords = JSON.parse(localStorage.getItem('eq5dRecords')) || [];
 
         const monthNamesTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -206,9 +274,10 @@
         window.onload = function() {
             document.getElementById('evalDate').value = new Date().toISOString().split('T')[0];
             updateTable();
-            renderPureCssChart();
+            renderMonthlyChart();
         };
 
+        // 🇹🇭 สมการคำนวณค่าน้ำหนักคุณภาพชีวิตสากลของประเทศไทย (Thailand Value Set)
         function calculateThailandUtilityScore(code) {
             if (code === "11111") return 1.000;
             let score = 1.000 - 0.2032; 
@@ -235,142 +304,177 @@
             const vas = parseInt(document.getElementById('eqVas').value);
 
             if(!hn || !date) {
-                alert("กรุณากรอกข้อมูลให้ครบถ้วนก่อนส่งข้อมูลครับ");
+                alert("กรุณากรอกข้อมูล HN และ วันที่ประเมินให้ครบถ้วนด้วยครับ");
                 return;
             }
 
             const code5d = "" + document.getElementById('m1').value + document.getElementById('m2').value + document.getElementById('m3').value + document.getElementById('m4').value + document.getElementById('m5').value;
             const utilityScore = calculateThailandUtilityScore(code5d);
 
+            // บันทึกเข้าพื้นที่เก็บข้อมูล
             eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
             localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
+            // แสดงกล่องคำแนะนำทางคลินิกแบบสรุปความเดิมเป๊ะ
             generateSummaryText(hn, period, code5d, utilityScore, vas);
             updateTable();
-            renderPureCssChart();
+            renderMonthlyChart();
 
-            alert("บันทึกข้อมูลคนไข้สำเร็จเรียบร้อยครับ!");
+            alert(`บันทึกและอัปเดตระบบสถิติผู้ป่วย HN: ${hn} เรียบร้อยครับ`);
+            document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
             
-            // ล้างฟิลด์ HN ออกหลังบันทึกเสร็จ เพื่อให้พร้อมคีย์เคสถัดไป
+            // รีเซ็ตค่า HN เพื่อความสะดวกในการคีย์เคสถัดไป
             document.getElementById('patientHN').value = '';
         }
 
+        // หน้าตาและเงื่อนไขการสรุปความแบบเดิม (เขียว เหลือง แดง)
         function generateSummaryText(hn, period, code, score, vas) {
             const box = document.getElementById('summary-box');
             const content = document.getElementById('summary-content');
-            box.style.display = "block";
+            box.classList.remove('hidden');
 
-            let bg = "#ecfdf5"; let color = "#065f46"; let msg = "❤️ คุณภาพชีวิตดีคงที่ในเกณฑ์มาตรฐานสากล";
-            if(score < 0.50) { bg = "#fef2f2"; color = "#991b1b"; msg = "🚨 ระดับดัชนีคุณภาพชีวิตต่ำวิกฤต เสี่ยงต่อภาวะน้ำเกินเฉียบพลัน"; }
-            else if(score < 0.75) { bg = "#fffbec"; color = "#92400e"; msg = "⚠️ ระดับคุณภาพชีวิตปานกลาง ควรเน้นย้ำเรื่องยาและการชั่งน้ำหนัก"; }
+            const textLabels = ["การเดิน/เคลื่อนไหว", "การดูแลตัวเอง", "การทำกิจกรรมประจำวัน", "ความเจ็บปวด/ไม่สบายตัว", "ความวิตกกังวล/ซึมเศร้า"];
+            let codeDetails = [];
+            for (let i = 0; i < 5; i++) {
+                let lvl = code[i];
+                if (lvl > 1) codeDetails.push(`${textLabels[i]} (ระดับ ${lvl})`);
+            }
+            let issuesText = codeDetails.length > 0 ? codeDetails.join(", ") : "ไม่มีปัญหารุนแรงในทั้ง 5 ด้าน";
+
+            let clinicalAdvice = "";
+            let alertClass = "";
+
+            if (score >= 0.75) {
+                alertClass = "sab-green";
+                clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ (Utility Score ≥ 0.75) ตัวโรค CHF ได้รับการควบคุมได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป";
+            } else if (score >= 0.50) {
+                alertClass = "sab-amber";
+                clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) เฝ้าระวังภาวะน้ำเกิน เช่น หายใจเหนื่อย นอนราบไม่ได้ ขาบวม น้ำหนักตัวเพิ่ม และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด";
+            } else {
+                alertClass = "sab-rose";
+                clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คะแนนดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการเกิด CHF Exacerbation แนะนำพบแพทย์ เพื่อประเมินด่วน";
+            }
 
             content.innerHTML = `
-                <div class="summary-alert" style="background:${bg}; color:${color}; border: 1px solid ${color}30;">
-                    <strong>ผู้ป่วย HN:</strong> ${hn} | <strong>ระยะติดตาม:</strong> ${period}<br>
-                    <strong>รหัส 5 มิติ:</strong> ${code} | <strong>Thailand Utility Score:</strong> ${score.toFixed(3)}<br>
-                    <strong>คะแนนสุขภาพวันนี้ (EQ-VAS):</strong> ${vas} / 100 คะแนน<br>
-                    <hr style="margin:10px 0; opacity:0.2;">
-                    ${msg}
-                </div>`;
+                <div class="summary-alert-box ${alertClass}">
+                    <div style="margin-bottom: 6px;"><strong>ผู้ป่วย HN:</strong> ${hn} | <strong>ระยะติดตาม:</strong> ${period}</div>
+                    <div style="margin-bottom: 6px;"><strong>ผลลัพธ์รหัส EQ-5D:</strong> <span class="code-pill">${code}</span></div>
+                    <div style="margin-bottom: 6px;"><strong>คะแนนดัชนีคุณภาพชีวิต (Thailand Utility Score):</strong> <strong>${score.toFixed(3)}</strong></div>
+                    <div style="margin-bottom: 6px;"><strong>คะแนนสุขภาพองค์รวมจากมุมมองผู้ป่วย (EQ-VAS):</strong> <strong>${vas} / 100 คะแนน</strong></div>
+                    <div style="margin-bottom: 12px; font-size: 12px; opacity: 0.85;"><strong>มิติที่มีปัญหา:</strong> ${issuesText}</div>
+                    <hr style="opacity: 0.15; margin: 12px 0;">
+                    <div>${clinicalAdvice}</div>
+                </div>
+            `;
         }
 
         function updateTable() {
             const tbody = document.getElementById('recordsTable');
             tbody.innerHTML = '';
-            
-            if(eq5dRecords.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-text">ยังไม่มีข้อมูลบันทึกในระบบ</td></tr>';
+
+            if (eq5dRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-row">ยังไม่มีข้อมูลบันทึกในระบบในขณะนี้</td></tr>';
                 return;
             }
 
-            let reversed = [...eq5dRecords].reverse();
-            reversed.forEach(rec => {
-                let badgeBg = "#e2e8f0"; let badgeColor = "#334155";
-                if(rec.period === "3 เดือน") { badgeBg = "#e0f2fe"; badgeColor = "#0369a1"; }
-                else if(rec.period === "6 เดือน") { badgeBg = "#fef3c7"; badgeColor = "#b45309"; }
-                else if(rec.period === "1 ปี") { badgeBg = "#f3e8ff"; badgeColor = "#6b21a8"; }
+            [...eq5dRecords].reverse().forEach(rec => {
+                let pClass = "tb-base";
+                if(rec.period === "3 เดือน") pClass = "tb-3m";
+                else if(rec.period === "6 เดือน") pClass = "tb-6m";
+                else if(rec.period === "1 ปี") pClass = "tb-1y";
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="font-weight:bold;">${rec.hn}</td>
-                    <td><span class="badge" style="background:${badgeBg}; color:${badgeColor};">${rec.period}</span></td>
-                    <td style="text-align:center; font-weight:bold; color:#4338ca;">${rec.score.toFixed(3)}</td>
-                    <td style="text-align:center;">${rec.vas}</td>
+                    <td style="font-weight:600; color:#0f172a;">${rec.hn}</td>
+                    <td style="color:#64748b;">${rec.date}</td>
+                    <td><span class="t-badge ${pClass}">${rec.period}</span></td>
+                    <td class="tbl-utility">${rec.score.toFixed(3)}</td>
+                    <td style="text-align:center; font-weight:600; color:#1e293b;">${rec.vas}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function renderPureCssChart() {
-            const container = document.getElementById('pureCssChart');
+        // ตัวเรนเดอร์กราฟแบบ Pure ดั้งเดิม หมดกังวลปัญหากราฟหายตลอดไป
+        function renderMonthlyChart() {
+            const container = document.getElementById('monthlyChart');
             container.innerHTML = '';
 
-            let dataCount = { 'Baseline': Array(12).fill(0), '3 เดือน': Array(12).fill(0), '6 เดือน': Array(12).fill(0), '1 ปี': Array(12).fill(0) };
-            
+            let chartDataStructure = { 'Baseline': Array(12).fill(0), '3 เดือน': Array(12).fill(0), '6 เดือน': Array(12).fill(0), '1 ปี': Array(12).fill(0) };
+
             eq5dRecords.forEach(rec => {
-                if(rec.date) {
-                    let parts = rec.date.split('-');
-                    if(parts.length >= 2) {
-                        let mIdx = parseInt(parts[1], 10) - 1;
-                        if(mIdx >= 0 && mIdx <= 11 && dataCount[rec.period]) { dataCount[rec.period][mIdx]++; }
+                if (rec.date) {
+                    const dateParts = rec.date.split('-');
+                    if(dateParts.length >= 2) {
+                        const monthIndex = parseInt(dateParts[1], 10) - 1;
+                        if(monthIndex >= 0 && monthIndex <= 11 && chartDataStructure[rec.period]) {
+                            chartDataStructure[rec.period][monthIndex]++;
+                        }
                     }
                 }
             });
 
             let maxVal = 1;
-            for(let p in dataCount) { dataCount[p].forEach(v => { if(v > maxVal) maxVal = v; }); }
+            for(let p in chartDataStructure) {
+                chartDataStructure[p].forEach(v => { if(v > maxVal) maxVal = v; });
+            }
 
             for(let i=0; i<12; i++) {
-                let vBase = dataCount['Baseline'][i];
-                let v3m = dataCount['3 เดือน'][i];
-                let v6m = dataCount['6 เดือน'][i];
-                let v1y = dataCount['1 ปี'][i];
+                let vBase = chartDataStructure['Baseline'][i];
+                let v3m = chartDataStructure['3 เดือน'][i];
+                let v6m = chartDataStructure['6 เดือน'][i];
+                let v1y = chartDataStructure['1 ปี'][i];
 
-                let hBase = Math.max(2, (vBase / maxVal) * 130);
-                let h3m = Math.max(2, (v3m / maxVal) * 130);
-                let h6m = Math.max(2, (v6m / maxVal) * 130);
-                let h1y = Math.max(2, (v1y / maxVal) * 130);
+                let hBase = Math.max(2, (vBase / maxVal) * 190);
+                let h3m = Math.max(2, (v3m / maxVal) * 190);
+                let h6m = Math.max(2, (v6m / maxVal) * 190);
+                let h1y = Math.max(2, (v1y / maxVal) * 190);
 
-                let mGroup = document.createElement('div');
-                mGroup.className = 'month-group';
-                mGroup.innerHTML = `
-                    <div class="bars-flex">
-                        <div class="bar bar-baseline" style="height:${hBase}px" data-value="Base: ${vBase} ราย"></div>
-                        <div class="bar bar-3m" style="height:${h3m}px" data-value="3M: ${v3m} ราย"></div>
-                        <div class="bar bar-6m" style="height:${h6m}px" data-value="6M: ${v6m} ราย"></div>
-                        <div class="bar bar-1y" style="height:${h1y}px" data-value="1Y: ${v1y} ราย"></div>
+                let col = document.createElement('div');
+                col.className = 'chart-month-col';
+                col.innerHTML = `
+                    <div class="chart-bars-container">
+                        <div class="chart-bar cb-base" style="height:${hBase}px" data-tip="Base: ${vBase} ราย"></div>
+                        <div class="chart-bar cb-3m" style="height:${h3m}px" data-tip="3M: ${v3m} ราย"></div>
+                        <div class="chart-bar cb-6m" style="height:${h6m}px" data-tip="6M: ${v6m} ราย"></div>
+                        <div class="chart-bar cb-1y" style="height:${h1y}px" data-tip="1Y: ${v1y} ราย"></div>
                     </div>
-                    <div class="month-label">${monthNamesTH[i]}</div>
+                    <div class="chart-label">${monthNamesTH[i]}</div>
                 `;
-                container.appendChild(mGroup);
+                container.appendChild(col);
             }
         }
 
+        // ฟังก์ชันส่งออก CSV ด้วยเบราว์เซอร์แท้ ทำงานฉลุย 100%
         function exportToCSV() {
-            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลสำหรับการส่งออก"); return; }
-            let csv = "\uFEFFHN,วันที่ประเมิน,ช่วงเวลา,EQ5D Code,Utility Score,EQ-VAS\n";
-            eq5dRecords.forEach(r => {
-                csv += `${r.hn},${r.date},${r.period},${r.code},${r.score.toFixed(3)},${r.vas}\n`;
+            if(eq5dRecords.length === 0) { 
+                alert("ไม่มีข้อมูลสำหรับการดาวน์โหลดส่งออกครับ"); 
+                return; 
+            }
+            let csvContent = "\uFEFFHN,วันที่ประเมิน,ช่วงเวลา,EQ-5D Code,Thailand Utility Score,EQ-VAS Score\n";
+            eq5dRecords.forEach(r => { 
+                csvContent += `${r.hn},${r.date},${r.period},${r.code},${r.score.toFixed(3)},${r.vas}\n`; 
             });
-
-            let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            let link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", "CHF_EQ5D5L_Report.csv");
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `CHF_EQ5D5L_MonthlyReport.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // ฟังก์ชันล้างข้อมูลทั้งหมดในคลิกเดียว
+        // ปุ่มเคลียร์ล้างข้อมูล
         function clearAllData() {
-            if(confirm("คุณต้องการล้างข้อมูลผู้ป่วยที่บันทึกไว้ทั้งหมดใช่หรือไม่? (ข้อมูลจะหายถาวร)")) {
+            if(confirm("คุณต้องการล้างข้อมูลประวัติที่เคยบันทึกไว้ทดสอบทั้งหมดใช่หรือไม่?")) {
                 eq5dRecords = [];
                 localStorage.removeItem('eq5dRecords');
-                document.getElementById('summary-box').style.display = "none";
+                document.getElementById('summary-box').classList.add('hidden');
                 updateTable();
-                renderPureCssChart();
-                alert("ล้างข้อมูลการทดสอบออกจากระบบเรียบร้อยแล้วครับ");
+                renderMonthlyChart();
+                alert("ระบบได้ทำการล้างข้อมูลทดสอบทั้งหมดออกเรียบร้อยแล้วครับ");
             }
         }
     </script>
