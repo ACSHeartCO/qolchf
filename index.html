@@ -102,7 +102,7 @@
             <div class="header-nav">
                 <a href="#assessment-section" class="nav-btn">📝 แบบประเมิน</a>
                 <a href="#dashboard-section" class="nav-btn nav-btn-lime">📊 Dashboard รายเดือน</a>
-                <a href="calculator.html" class="nav-btn nav-btn-purple">📅 เครื่องคำนวณวันนัด</a>
+                <a href="calculator.html" class="nav-btn nav-btn-green">📅 ตารางนัดหมาย</a>
             </div>
         </div>
     </header>
@@ -194,7 +194,7 @@
 
                     <div class="vas-box">
                         <label style="font-weight:700; color:#1e3a8a;">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
-                        <p style="font-size:12px; color:#4f46e5; margin:2px 0 8px 0;">0 คือสุขภาพแย่ที่สุดที่จินตนาการได้ และ 100 คือสุขภาพดีที่สุดที่จินตนาการได้</p>
+                        <p style="font-size:12px; color:#4f46e5; margin:2px 0 8px 0;">0 คือสุขภาพแย่ที่สุด และ 100 คือสุขภาพดีที่สุด</p>
                         <div class="vas-flex">
                             <input type="range" id="eqVas" class="vas-slider" min="0" max="100" value="70" oninput="document.getElementById('vasVal').innerText = this.value">
                             <span id="vasVal" class="vas-output">70</span>
@@ -260,10 +260,29 @@
         const monthNamesTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
         window.onload = function() {
-            document.getElementById('evalDate').value = new Date().toISOString().split('T')[0];
-            updateTable();
-            renderMonthlyChart();
-        };
+    // 1. ตั้งค่าวันที่ปัจจุบันในฟอร์มเป็นค่าเริ่มต้นตามเดิม
+    document.getElementById('evalDate').value = new Date().toISOString().split('T')[0];
+    
+    // 2. ลอจิกใหม่: ตรวจสอบว่ามีการคลิกปุ่มทางลัดมาจากหน้าตารางนัดหมายหรือไม่
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramHN = urlParams.get('hn');
+    const paramPeriod = urlParams.get('period');
+
+    if (paramHN && paramPeriod) {
+        // นำค่า HN มากรอกให้ในช่องทันที
+        document.getElementById('patientHN').value = paramHN;
+        
+        // นำค่าช่วงเวลาติดตาม (3 เดือน / 6 เดือน / 1 ปี) มาเลือกให้อัตโนมัติ
+        document.getElementById('timePeriod').value = paramPeriod;
+        
+        // แจ้งเตือนเพื่อให้ Case Manager ทราบและโฟกัสทำแบบประเมินต่อได้เลย
+        alert(`ดึงข้อมูลอัตโนมัติสำเร็จ: ผู้ป่วย ${paramHN} กำลังทำประเมินรอบ [${paramPeriod}]`);
+    }
+
+    // 3. อัปเดตตารางผลลัพธ์และแดชบอร์ดตามเดิม
+    updateTable();
+    renderMonthlyChart();
+};
 
         function calculateThailandUtilityScore(code) {
             if (code === "11111") return 1.000;
