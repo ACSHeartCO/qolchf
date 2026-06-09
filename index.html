@@ -50,7 +50,7 @@
                                 <option value="Baseline">Baseline (แรกรับ)</option>
                                 <option value="3 เดือน">ครบประเมิน 3 เดือน</option>
                                 <option value="6 เดือน">ครบประเมิน 6 เดือน</option>
-                                <option value="3 ปี">ครบประเมิน 3 ปี</option>
+                                <option value="1 ปี">ครบประเมิน 1 ปี</option>
                             </select>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
 
                         <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 shadow-2xs">
                             <label class="block font-bold text-indigo-950 mb-1">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
-                            <p class="text-xs text-indigo-700 mb-3">0 คือสุขภาพแย่ที่สุดที่จินตนาการได้ และ 100 คือสุขภาพดีที่สุดที่จินตนาการได้</p>
+                            <p class="text-xs text-indigo-700 mb-3">0 คือสุขภาพแย่ที่สุด และ 100 คือสุขภาพดีที่สุด</p>
                             <div class="flex items-center gap-4">
                                 <input type="range" id="eqVas" min="0" max="100" value="70" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
                                 <output class="font-bold text-xl text-indigo-700 w-12 text-center">70</output>
@@ -266,7 +266,7 @@
             updateTable();
             renderChart();
 
-            alert(`บันทึกและคำนวณคะแนนผู้ป่วย HN: ${hn} เรียบร้อยแล้วครับ`);
+            alert(`บันทึกและคำนวณคะแนนผู้ป่วย HN: ${hn} เรียบร้อยแล้วค่ะ`);
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -293,7 +293,7 @@
                 clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ (Utility Score ≥ 0.75) ตัวโรค CHF ได้รับการควบคุมได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป";
             } else if (score >= 0.50) {
                 bgClass = "bg-amber-50 border border-amber-200 text-amber-900";
-                clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) ควรตรวจสอบอาการคั่งน้ำ น้ำหนักตัว และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด";
+                clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) ควรตรวจสอบอาการน้ำเกิน เช่น เหนื่อยง่าย นอนราบไม่ได้ น้ำหนักตัว และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด";
             } else {
                 bgClass = "bg-rose-50 border border-rose-200 text-rose-900";
                 clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คะแนนดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการกลับมานอนโรงพยาบาลซ้ำ (Re-admission) แนะนำรายงานแพทย์ผู้ดูแลหรือทีมพยาบาล Case Manager เพื่อประเมินด่วน";
@@ -333,13 +333,13 @@
                 case 'Baseline': return 'bg-gray-100 text-gray-700';
                 case '3 เดือน': return 'bg-sky-100 text-sky-700';
                 case '6 เดือน': return 'bg-amber-100 text-amber-700';
-                case '3 ปี': return 'bg-purple-100 text-purple-700';
+                case '1 ปี': return 'bg-purple-100 text-purple-700';
                 default: return 'bg-slate-100 text-slate-700';
             }
         }
 
         function renderChart() {
-            const periods = ['Baseline', '3 เดือน', '6 เดือน', '3 ปี'];
+            const periods = ['Baseline', '3 เดือน', '6 เดือน', '1 ปี'];
             
             // เปลี่ยน Dashboard ให้พล็อตกราฟเปรียบเทียบทั้งค่าเฉลี่ย Utility Score และ EQ-VAS พร้อมกันสองเส้นแบบสวยงาม
             const avgScoreData = periods.map(p => {
@@ -399,7 +399,7 @@
         }
 
         function exportToCSV() {
-            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลที่จะส่งออกครับ"); return; }
+            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลที่จะส่งออก"); return; }
             let csvContent = "\uFEFF"; 
             csvContent += "HN,วันที่ประเมิน,ช่วงเวลา,EQ-5D Code,Thailand Utility Score,EQ-VAS Score\n";
             eq5dRecords.forEach(r => { csvContent += `${r.hn},${r.date},${r.period},${r.code},${r.score.toFixed(3)},${r.vas}\n`; });
