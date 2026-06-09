@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHF EQ-5D-5L Monthly Dashboard & Tracking</title>
     <style>
-        /* รีเซ็ตและตั้งค่าธีมสไตล์คล้ายระบบเดิม */
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
         
-        /* Header ธีมสีเดิม */
         header { background-color: #4338ca; color: white; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .header-wrap { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px; }
@@ -19,38 +17,36 @@
         .nav-btn-green { background-color: #059669; }
         .nav-btn-green:hover { background-color: #10b981; }
 
-        /* การจัดหน้าแบบเดิม (7 Columns vs 5 Columns) */
         .main-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 30px; }
         @media (max-width: 1024px) { .main-container { grid-template-columns: 1fr; } .col-left, .col-right { grid-column: span 12 !important; } }
         .col-left { grid-column: span 7; display: flex; flex-direction: column; gap: 24px; }
         .col-right { grid-column: span 5; display: flex; flex-direction: column; gap: 24px; }
 
-        /* การ์ดสไตล์เดิม */
         .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .card-title { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
         .card-subtitle { font-size: 12px; color: #94a3b8; margin: 0 0 16px 0; display: block; }
         
-        /* ฟอร์มและ Grid ข้อมูลผู้ป่วย */
         .patient-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; background-color: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
         @media (max-width: 640px) { .patient-grid { grid-template-columns: 1fr; } }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
         .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
         .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: white; width: 100%; box-sizing: border-box; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #6366f1; }
 
-        /* คำถาม 5 ด้าน */
+        /* ปรับปรุงดีไซน์วิทยุ (Radio Options) แยกเป็นรายข้อแทน Dropdown */
         .q-section-title { font-size: 14px; font-weight: 700; color: #312e81; text-transform: uppercase; tracking: 0.05em; margin: 20px 0 12px 0; }
-        .q-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-        .q-box label { block: true; font-weight: 500; font-size: 14px; color: #0f172a; display: block; margin-bottom: 8px; }
+        .q-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .q-box legend { font-weight: 700; font-size: 14px; color: #0f172a; margin-bottom: 10px; padding: 0; }
+        .radio-group { display: flex; flex-direction: column; gap: 8px; }
+        .radio-label { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #334155; cursor: pointer; transition: 0.15s; }
+        .radio-label:hover { background-color: #f1f5f9; border-color: #cbd5e1; }
+        .radio-label input[type="radio"] { margin-top: 3px; width: 16px; height: 16px; accent-color: #4338ca; cursor: pointer; flex-shrink: 0; }
         
-        /* ส่วนของ EQ-VAS */
         .vas-box { background-color: #eef2ff; border: 1px solid #e0e7ff; border-radius: 12px; padding: 16px; margin-bottom: 24px; }
         .vas-flex { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
         .vas-slider { flex: 1; height: 8px; background: #c7d2fe; border-radius: 4px; outline: none; -webkit-appearance: none; cursor: pointer; }
         .vas-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #4338ca; border-radius: 50%; }
         .vas-output { font-size: 20px; font-weight: 700; color: #4338ca; width: 48px; text-align: center; }
 
-        /* ปุ่มกด */
         .submit-btn { width: 100%; background: #4338ca; color: white; border: none; padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.2); }
         .submit-btn:hover { background: #3730a3; }
         
@@ -62,7 +58,6 @@
         .btn-del { background: #ef4444; color: white; }
         .btn-del:hover { background: #b91c1c; }
 
-        /* กราฟแท่งรายเดือนแบบดั้งเดิม (Pure CSS/SVG ไม่พึ่งคลังนอก) */
         .chart-wrapper { height: 240px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; margin-top: 16px; }
         .chart-month-col { width: 8%; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
         .chart-bars-container { display: flex; align-items: flex-end; gap: 2px; height: 200px; width: 100%; justify-content: center; }
@@ -76,7 +71,6 @@
         .chart-legend { display: flex; justify-content: center; gap: 12px; font-size: 11px; margin-top: 16px; flex-wrap: wrap; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
-        /* กล่องข้อความสรุปผลทางคลินิก (Clinical Summary แบบเดิมเป๊ะ) */
         .summary-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 20px 0 12px 0; display: flex; align-items: center; gap: 6px; }
         .summary-alert-box { padding: 20px; border-radius: 12px; font-size: 14px; line-height: 1.6; border: 1px solid transparent; }
         .sab-green { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
@@ -84,7 +78,6 @@
         .sab-rose { background-color: #fef2f2; border-color: #fca5a5; color: #991b1b; }
         .code-pill { font-family: monospace; font-weight: 700; background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); margin: 0 2px; }
 
-        /* ตารางสไตล์เดิม */
         .table-scroll { max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
         th, td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; }
@@ -95,7 +88,6 @@
         .tb-3m { background: #e0f2fe; color: #0369a1; }
         .tb-6m { background: #fef3c7; color: #b45309; }
         .tb-1y { background: #f3e8ff; color: #6b21a8; }
-        .hidden { display: none !important; }
         .empty-row { text-align: center; color: #94a3b8; padding: 24px; font-style: italic; }
     </style>
 </head>
@@ -144,60 +136,60 @@
 
                     <div class="q-section-title">ระบุระดับปัญหาในแต่ละด้าน (ระดับ 1 - 5)</div>
 
-                    <div class="q-box">
-                        <label>1. การเคลื่อนไหว (Mobility)</label>
-                        <select id="m1">
-                            <option value="1">1 - ฉันไม่มีความลำบากในการเดิน</option>
-                            <option value="2">2 - ฉันมีความลำบากในการเดินเล็กน้อย</option>
-                            <option value="3">3 - ฉันมีความลำบากในการเดินปานกลาง</option>
-                            <option value="4">4 - ฉันมีความลำบากในการเดินอย่างมาก</option>
-                            <option value="5">5 - ฉันไม่สามารถเดินไปไหนมาไหนได้เลย</option>
-                        </select>
-                    </div>
+                    <fieldset class="q-box">
+                        <legend>1. การเคลื่อนไหว (Mobility)</legend>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="m1" value="1" checked> 1 - ฉันไม่มีความลำบากในการเดิน</label>
+                            <label class="radio-label"><input type="radio" name="m1" value="2"> 2 - ฉันมีความลำบากในการเดินเล็กน้อย</label>
+                            <label class="radio-label"><input type="radio" name="m1" value="3"> 3 - ฉันมีความลำบากในการเดินปานกลาง</label>
+                            <label class="radio-label"><input type="radio" name="m1" value="4"> 4 - ฉันมีความลำบากในการเดินอย่างมาก</label>
+                            <label class="radio-label"><input type="radio" name="m1" value="5"> 5 - ฉันไม่สามารถเดินไปไหนมาไหนได้เลย</label>
+                        </div>
+                    </fieldset>
 
-                    <div class="q-box">
-                        <label>2. การดูแลตัวเอง (Self-Care)</label>
-                        <select id="m2">
-                            <option value="1">1 - ฉันไม่มีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเอง</option>
-                            <option value="2">2 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองเล็กน้อย</option>
-                            <option value="3">3 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองปานกลาง</option>
-                            <option value="4">4 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองอย่างมาก</option>
-                            <option value="5">5 - ฉันไม่สามารถอาบน้ำหรือแต่งตัวด้วยตัวเองได้เลย</option>
-                        </select>
-                    </div>
+                    <fieldset class="q-box">
+                        <legend>2. การดูแลตัวเอง (Self-Care)</legend>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="m2" value="1" checked> 1 - ฉันไม่มีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเอง</label>
+                            <label class="radio-label"><input type="radio" name="m2" value="2"> 2 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองเล็กน้อย</label>
+                            <label class="radio-label"><input type="radio" name="m2" value="3"> 3 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองปานกลาง</label>
+                            <label class="radio-label"><input type="radio" name="m2" value="4"> 4 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองอย่างมาก</label>
+                            <label class="radio-label"><input type="radio" name="m2" value="5"> 5 - ฉันไม่สามารถอาบน้ำหรือแต่งตัวด้วยตัวเองได้เลย</label>
+                        </div>
+                    </fieldset>
 
-                    <div class="q-box">
-                        <label>3. การทำกิจกรรมที่ชอบ/กิจวัตรประจำวัน (Usual Activities)</label>
-                        <select id="m3">
-                            <option value="1">1 - ฉันไม่มีความลำบากในการทำกิจกรรมประจำวัน (งานบ้าน, ทำงาน, เรียน, พักผ่อน)</option>
-                            <option value="2">2 - ฉันมีความลำบากในการทำกิจกรรมประจำวันเล็กน้อย</option>
-                            <option value="3">3 - ฉันมีความลำบากในการทำกิจกรรมประจำวันปานกลาง</option>
-                            <option value="4">4 - ฉันมีความลำบากในการทำกิจกรรมประจำวันอย่างมาก</option>
-                            <option value="5">5 - ฉันไม่สามารถทำกิจกรรมประจำวันได้เลย</option>
-                        </select>
-                    </div>
+                    <fieldset class="q-box">
+                        <legend>3. การทำกิจกรรมที่ชอบ/กิจวัตรประจำวัน (Usual Activities)</legend>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="m3" value="1" checked> 1 - ฉันไม่มีความลำบากในการทำกิจกรรมประจำวัน (งานบ้าน, ทำงาน, เรียน, พักผ่อน)</label>
+                            <label class="radio-label"><input type="radio" name="m3" value="2"> 2 - ฉันมีความลำบากในการทำกิจกรรมประจำวันเล็กน้อย</label>
+                            <label class="radio-label"><input type="radio" name="m3" value="3"> 3 - ฉันมีความลำบากในการทำกิจกรรมประจำวันปานกลาง</option>
+                            <label class="radio-label"><input type="radio" name="m3" value="4"> 4 - ฉันมีความลำบากในการทำกิจกรรมประจำวันอย่างมาก</label>
+                            <label class="radio-label"><input type="radio" name="m3" value="5"> 5 - ฉันไม่สามารถทำกิจกรรมประจำวันได้เลย</label>
+                        </div>
+                    </fieldset>
 
-                    <div class="q-box">
-                        <label>4. อาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</label>
-                        <select id="m4">
-                            <option value="1">1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</option>
-                            <option value="2">2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</option>
-                            <option value="3">3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</option>
-                            <option value="4">4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</option>
-                            <option value="5">5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</option>
-                        </select>
-                    </div>
+                    <fieldset class="q-box">
+                        <legend>4. อาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</legend>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="m4" value="1" checked> 1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="2"> 2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="3"> 3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="4"> 4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="5"> 5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</label>
+                        </div>
+                    </fieldset>
 
-                    <div class="q-box">
-                        <label>5. อาการวิตกกังวล หรือซึมเศร้า (Anxiety / Depression)</label>
-                        <select id="m5">
-                            <option value="1">1 - ฉันไม่รู้สึกวิตกกังวลหรือซึมเศร้า</option>
-                            <option value="2">2 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าเล็กน้อย</option>
-                            <option value="3">3 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าปานกลาง</option>
-                            <option value="4">4 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างมาก</option>
-                            <option value="5">5 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างร้ายแรงที่สุด</option>
-                        </select>
-                    </div>
+                    <fieldset class="q-box">
+                        <legend>5. อาการวิตกกังวล หรือซึมเศร้า (Anxiety / Depression)</legend>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="m5" value="1" checked> 1 - ฉันไม่รู้สึกวิตกกังวลหรือซึมเศร้า</label>
+                            <label class="radio-label"><input type="radio" name="m5" value="2"> 2 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าเล็กน้อย</label>
+                            <label class="radio-label"><input type="radio" name="m5" value="3"> 3 - ฉันรู้สึกวิตกกังวลorซึมเศร้าปานกลาง</label>
+                            <label class="radio-label"><input type="radio" name="m5" value="4"> 4 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างมาก</label>
+                            <label class="radio-label"><input type="radio" name="m5" value="5"> 5 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างร้ายแรงที่สุด</label>
+                        </div>
+                    </fieldset>
 
                     <div class="vas-box">
                         <label style="font-weight:700; color:#1e3a8a;">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
@@ -219,13 +211,11 @@
         </div>
 
         <div class="col-right">
-            
             <div class="card" id="dashboard-section">
                 <h2 class="card-title" style="border:none; padding:0;">📊 จำนวนเคสสะสมในแต่ละเดือน</h2>
                 <span class="card-subtitle">แยกปริมาณงานตามช่วงเวลา Baseline และรอบติดตามผล</span>
                 
-                <div class="chart-wrapper" id="monthlyChart">
-                    </div>
+                <div class="chart-wrapper" id="monthlyChart"></div>
 
                 <div class="chart-legend">
                     <div style="display:flex; align-items:center; gap:4px;"><span class="legend-dot cb-base"></span> Baseline</div>
@@ -255,8 +245,7 @@
                                 <th style="text-align:center;">VAS</th>
                             </tr>
                         </thead>
-                        <tbody id="recordsTable">
-                            </tbody>
+                        <tbody id="recordsTable"></tbody>
                     </table>
                 </div>
                 <p style="font-size:10px; color:#94a3b8; margin:8px 0 0 0;">* หมายเหตุ: ข้อมูลจะบันทึกอยู่ในหน่วยความจำบราวเซอร์จำลองเครื่องคุณ</p>
@@ -266,9 +255,7 @@
     </div>
 
     <script>
-        // เคลียร์ข้อมูลทดสอบเริ่มต้นออกเกลี้ยงตามคำสั่ง (พร้อมใช้งานแบบคลินิกว่างเปล่า)
         let eq5dRecords = JSON.parse(localStorage.getItem('eq5dRecords')) || [];
-
         const monthNamesTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
         window.onload = function() {
@@ -277,7 +264,6 @@
             renderMonthlyChart();
         };
 
-        // 🇹🇭 สมการคำนวณค่าน้ำหนักคุณภาพชีวิตสากลของประเทศไทย (Thailand Value Set)
         function calculateThailandUtilityScore(code) {
             if (code === "11111") return 1.000;
             let score = 1.000 - 0.2032; 
@@ -297,6 +283,15 @@
             return parseFloat(score.toFixed(3));
         }
 
+        // ดึงค่าของ Radio Button ที่ถูกเลือก
+        function getRadioValue(name) {
+            const radios = document.getElementsByName(name);
+            for (let i = 0; i < radios.length; i++) {
+                if (radios[i].checked) return radios[i].value;
+            }
+            return "1"; // Default
+        }
+
         function handleSubmit() {
             const hn = document.getElementById('patientHN').value.trim();
             const date = document.getElementById('evalDate').value;
@@ -308,26 +303,37 @@
                 return;
             }
 
-            const code5d = "" + document.getElementById('m1').value + document.getElementById('m2').value + document.getElementById('m3').value + document.getElementById('m4').value + document.getElementById('m5').value;
+            // อ่านค่าจากปุ่มตัวเลือก Radio แทนการดึงจาก Element ID แบบ Dropdown
+            const code5d = "" + getRadioValue('m1') + getRadioValue('m2') + getRadioValue('m3') + getRadioValue('m4') + getRadioValue('m5');
             const utilityScore = calculateThailandUtilityScore(code5d);
 
-            // บันทึกเข้าพื้นที่เก็บข้อมูล
             eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
             localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
-            // แสดงกล่องคำแนะนำทางคลินิกแบบสรุปความเดิมเป๊ะ
             generateSummaryText(hn, period, code5d, utilityScore, vas);
             updateTable();
             renderMonthlyChart();
 
-            alert(`บันทึกและอัปเดตระบบสถิติผู้ป่วย HN: ${hn} เรียบร้อยครับ`);
+            alert(`บันทึกข้อมูลสำเร็จเรียบร้อยครับ`);
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
             
-            // รีเซ็ตค่า HN เพื่อความสะดวกในการคีย์เคสถัดไป
+            // รีเซ็ตค่าฟอร์มกลับเป็นตั้งต้น
             document.getElementById('patientHN').value = '';
+            resetRadios();
         }
 
-        // หน้าตาและเงื่อนไขการสรุปความแบบเดิม (เขียว เหลือง แดง)
+        function resetRadios() {
+            const names = ['m1', 'm2', 'm3', 'm4', 'm5'];
+            names.forEach(name => {
+                const radios = document.getElementsByName(name);
+                for(let i=0; i<radios.length; i++) {
+                    radios[i].checked = (radios[i].value === "1");
+                }
+            });
+            document.getElementById('eqVas').value = 70;
+            document.getElementById('vasVal').innerText = 70;
+        }
+
         function generateSummaryText(hn, period, code, score, vas) {
             const box = document.getElementById('summary-box');
             const content = document.getElementById('summary-content');
@@ -352,7 +358,7 @@
                 clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) เฝ้าระวังภาวะน้ำเกิน เช่น หายใจเหนื่อย นอนราบไม่ได้ ขาบวม น้ำหนักตัวเพิ่ม และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด";
             } else {
                 alertClass = "sab-rose";
-                clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คะแนนดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการเกิด CHF Exacerbation แนะนำพบแพทย์ เพื่อประเมินด่วน";
+                clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คะแนนดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการเกิด CHF แนะนำพบแพทย์ เพื่อประเมินด่วน";
             }
 
             content.innerHTML = `
@@ -395,7 +401,6 @@
             });
         }
 
-        // ตัวเรนเดอร์กราฟแบบ Pure ดั้งเดิม หมดกังวลปัญหากราฟหายตลอดไป
         function renderMonthlyChart() {
             const container = document.getElementById('monthlyChart');
             container.innerHTML = '';
@@ -445,7 +450,6 @@
             }
         }
 
-        // ฟังก์ชันส่งออก CSV ด้วยเบราว์เซอร์แท้ ทำงานฉลุย 100%
         function exportToCSV() {
             if(eq5dRecords.length === 0) { 
                 alert("ไม่มีข้อมูลสำหรับการดาวน์โหลดส่งออกครับ"); 
@@ -466,9 +470,8 @@
             document.body.removeChild(link);
         }
 
-        // ปุ่มเคลียร์ล้างข้อมูล
         function clearAllData() {
-            if(confirm("คุณต้องการล้างข้อมูลประวัติที่เคยบันทึกไว้ทดสอบทั้งหมดใช่หรือไม่?")) {
+            if(confirm("คุณต้องการล้างข้อมูลประวัติที่เคยบันทึกไว้ทั้งหมดใช่หรือไม่?")) {
                 eq5dRecords = [];
                 localStorage.removeItem('eq5dRecords');
                 document.getElementById('summary-box').classList.add('hidden');
