@@ -3,171 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHF Quality of Life & Care</title>
-    <!-- นำเข้า Tailwind CSS สำหรับการตกแต่งที่สวยงาม -->
+    <title>CHF EQ-5D-5L Assessment & Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Sarabun', sans-serif; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 
-    <!-- Header Navigation -->
-    <header class="bg-blue-600 text-white shadow-md">
-        <div class="container mx-auto px-4 py-6 flex justify-between items-center">
-            <h1 class="text-xl font-bold flex items-center gap-2">
-                ❤️ CHF LifeCare
-            </h1>
-            <p class="text-sm bg-blue-700 px-3 py-1 rounded-full">บันทึกเพื่อคุณภาพชีวิตที่ดีขึ้น</p>
+    <header class="bg-indigo-700 text-white shadow-md">
+        <div class="container mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-bold flex items-center gap-2">🩺 CHF EQ-5D-5L Tracking System</h1>
+                <p class="text-xs text-indigo-200 mt-0.5">ระบบบันทึกคุณภาพชีวิตผู้ป่วยภาวะหัวใจล้มเหลวและแดชบอร์ด</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="#assessment-section" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium transition">📝 แบบประเมิน</a>
+                <a href="#dashboard-section" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium transition">📊 Dashboard</a>
+            </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <main class="container mx-auto px-4 py-8 max-w-4xl">
-        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 mb-8">
-            <h2 class="text-2xl font-bold text-blue-900 mb-3">การดูแลคุณภาพชีวิต (QOL) ในผู้ป่วยภาวะหัวใจล้มเหลว</h2>
-            <p class="text-slate-600 leading-relaxed">
-                ภาวะหัวใจล้มเหลว (Congestive Heart Failure) อาจทำให้รู้สึกเหนื่อยง่ายหรือบวม แต่การปรับพฤติกรรมและการหมั่นประเมินตัวเองเป็นประจำ จะช่วยให้คุณสามารถกลับมาใช้ชีวิตประจำวันได้อย่างมีความสุขและลดอัตราการนอนโรงพยาบาลซ้ำได้ครับ
-            </p>
-        </div>
-
-        <!-- 3 Pillars of CHF Care (Grid) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-emerald-50 border border-emerald-100 p-5 rounded-xl">
-                <span class="text-2xl">⚖️</span>
-                <h3 class="font-bold text-emerald-900 mt-2 mb-1">ชั่งน้ำหนักทุกวัน</h3>
-                <p class="text-sm text-emerald-700">น้ำหนักเพิ่มเกิน 1 กิโลกรัมใน 1 วัน หรือ 2 กิโลกรัมใน 1 สัปดาห์ อาจเป็นสัญญาณของน้ำเกิน</p>
-            </div>
-            <div class="bg-amber-50 border border-amber-100 p-5 rounded-xl">
-                <span class="text-2xl">💧</span>
-                <h3 class="font-bold text-amber-900 mt-2 mb-1">จำกัดน้ำดื่ม</h3>
-                <p class="text-sm text-amber-700">ดื่มน้ำตามปริมาณที่แพทย์สั่งอย่างเคร่งครัด (มักไม่เกิน 1.5 ลิตรต่อวัน) รวมถึงลดเค็ม</p>
-            </div>
-            <div class="bg-rose-50 border border-rose-100 p-5 rounded-xl">
-                <span class="text-2xl">💊</span>
-                <h3 class="font-bold text-rose-900 mt-2 mb-1">ทานยาต่อเนื่อง</h3>
-                <p class="text-sm text-rose-700">ห้ามหยุดยาหรือปรับยาเองเด็ดขาด แม้จะรู้สึกว่าอาการดีขึ้นแล้วก็ตาม</p>
-            </div>
-        </div>
-
-        <!-- QOL Self-Assessment Tool -->
-        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100">
-            <h3 class="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                📋 แบบประเมินอาการและคุณภาพชีวิตเบื้องต้น
-            </h3>
-            <p class="text-sm text-slate-500 mb-6">กรุณาเลือกอาการที่ตรงกับคุณในช่วง 2-3 วันที่ผ่านมา เพื่อประเมินระดับ QOL</p>
+    <main class="container mx-auto px-4 py-8 max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <section id="assessment-section" class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h2 class="text-xl font-bold text-slate-900 mb-5 flex items-center gap-2 border-b border-slate-100 pb-3">
+                📝 บันทึกแบบประเมินคุณภาพชีวิต (EQ-5D-5L)
+            </h2>
             
-            <form id="qolForm" class="space-y-6">
-                <!-- Question 1 -->
-                <div class="border-b border-slate-100 pb-4">
-                    <label class="block font-medium mb-2">1. คุณมีอาการเหนื่อยหอบขณะทำกิจกรรมปกติในชีวิตประจำวัน (เช่น เดินอาบน้ำ แต่งตัว) มากน้อยแค่ไหน?</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q1" value="0" required class="accent-blue-600"> ไม่เหนื่อยเลย
-                        </label>
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q1" value="1" class="accent-blue-600"> เหนื่อยปานกลาง
-                        </label>
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q1" value="2" class="accent-blue-600"> เหนื่อยมาก/ทำไม่ไหว
-                        </label>
+            <form id="eq5dForm" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">HN ผู้ป่วย *</label>
+                        <input type="text" id="patientHN" required placeholder="เช่น HN691234" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">วันที่ประเมิน *</label>
+                        <input type="date" id="evalDate" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">ช่วงเวลาประเมิน *</label>
+                        <select id="timePeriod" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="Baseline">Baseline (แรกรับ)</option>
+                            <option value="3 เดือน">ครบประเมิน 3 เดือน</option>
+                            <option value="6 เดือน">ครบประเมิน 6 เดือน</option>
+                            <option value="3 ปี">ครบประเมิน 3 ปี</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Question 2 -->
-                <div class="border-b border-slate-100 pb-4">
-                    <label class="block font-medium mb-2">2. อาการนอนราบไม่ได้ (ต้องหนุนหมอนหลายใบเพื่อไม่ให้เหนื่อยตอนดึก) เป็นบ่อยไหม?</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q2" value="0" required class="accent-blue-600"> ไม่มีอาการ นอนราบได้
-                        </label>
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q2" value="1" class="accent-blue-600"> เป็นบางครั้ง
-                        </label>
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q2" value="2" class="accent-blue-600"> เป็นทุกคืน/ต้องนั่งหลับ
-                        </label>
+                <div class="space-y-5">
+                    <h3 class="text-sm font-bold text-indigo-900 uppercase tracking-wider">ระบุระดับปัญหาในแต่ละด้าน (ระดับ 1 - 5)</h3>
+                    
+                    <div class="bg-white border border-slate-100 rounded-xl p-4 shadow-2xs">
+                        <label class="block font-medium text-slate-900 mb-2">1. การเคลื่อนไหว (Mobility)</label>
+                        <select name="m1" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500">
+                            <option value="1">1 - ฉันไม่มีความลำบากในการเดิน</option>
+                            <option value="2">2 - ฉันมีความลำบากในการเดินเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีความลำบากในการเดินปานกลาง</option>
+                            <option value="4">4 - ฉันมีความลำบากในการเดินอย่างมาก</option>
+                            <option value="5">5 - ฉันไม่สามารถเดินไปไหนมาไหนได้เลย</option>
+                        </select>
                     </div>
-                </div>
 
-                <!-- Question 3 -->
-                <div class="border-b border-slate-100 pb-4">
-                    <label class="block font-medium mb-2">3. คุณมีอาการบวมที่ข้อเท้า หลังเท้า หรือหน้าแข้งหรือไม่?</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q3" value="0" required class="accent-blue-600"> ไม่บวมเลย
-                        </label>
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q3" value="1" class="accent-blue-600"> บวมเล็กน้อย (กดบุ๋ม)
-                        </label>
-                        <label class="flex items-center gap-2 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="q3" value="2" class="accent-blue-600"> บวมมากอย่างเห็นได้ชัด
-                        </label>
+                    <div class="bg-white border border-slate-100 rounded-xl p-4 shadow-2xs">
+                        <label class="block font-medium text-slate-900 mb-2">2. การดูแลตัวเอง (Self-Care)</label>
+                        <select name="m2" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500">
+                            <option value="1">1 - ฉันไม่มีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเอง</option>
+                            <option value="2">2 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองปานกลาง</option>
+                            <option value="4">4 - ฉันมีความลำบากในการอาบน้ำหรือแต่งตัวด้วยตัวเองอย่างมาก</option>
+                            <option value="5">5 - ฉันไม่สามารถอาบน้ำหรือแต่งตัวด้วยตัวเองได้เลย</option>
+                        </select>
                     </div>
-                </div>
 
-                <button type="button" onclick="calculateQOL()" class="w-full bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:bg-blue-700 transition duration-200">
-                    ดูผลประเมินคุณภาพชีวิต
-                </button>
-            </form>
+                    <div class="bg-white border border-slate-100 rounded-xl p-4 shadow-2xs">
+                        <label class="block font-medium text-slate-900 mb-2">3. การทำกิจกรรมที่ชอบ/กิจวัตรประจำวัน (Usual Activities)</label>
+                        <select name="m3" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500">
+                            <option value="1">1 - ฉันไม่มีความลำบากในการทำกิจกรรมประจำวัน (งานบ้าน, ทำงาน, เรียน, พักผ่อน)</option>
+                            <option value="2">2 - ฉันมีความลำบากในการทำกิจกรรมประจำวันเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีความลำบากในการทำกิจกรรมประจำวันปานกลาง</option>
+                            <option value="4">4 - ฉันมีความลำบากในการทำกิจกรรมประจำวันอย่างมาก</option>
+                            <option value="5">5 - ฉันไม่สามารถทำกิจกรรมประจำวันได้เลย</option>
+                        </select>
+                    </div>
 
-            <!-- Result Box (Hidden by default) -->
-            <div id="resultBox" class="hidden mt-8 p-6 rounded-xl border animate-fade-in">
-                <h4 class="text-lg font-bold mb-2" id="resultTitle"></h4>
-                <p class="text-sm mb-4" id="resultDesc"></p>
-                <div class="p-4 bg-white rounded-lg border text-sm" id="resultAdvice"></div>
-            </div>
-        </div>
-    </main>
+                    <div class="bg-white border border-slate-100 rounded-xl p-4 shadow-2xs">
+                        <label class="block font-medium text-slate-900 mb-2">4. อาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</label>
+                        <select name="m4" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500">
+                            <option value="1">1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</option>
+                            <option value="2">2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</option>
+                            <option value="3">3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</option>
+                            <option value="4">4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</option>
+                            <option value="5">5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</option>
+                        </select>
+                    </div>
 
-    <footer class="text-center py-8 text-slate-400 text-xs mt-12 border-t border-slate-200">
-        <p>© 2026 CHF LifeCare Project. จัดทำขึ้นเพื่อเป็นข้อมูลความรู้เบื้องต้นเท่านั้น ไม่สามารถทดแทนการวินิจฉัยของแพทย์ได้</p>
-    </footer>
+                    <div class="bg-white border border-slate-100 rounded-xl p-4 shadow-2xs">
+                        <label class="block font-medium text-slate-900 mb-2">5. อาการวิตกกังวล หรือซึมเศร้า (Anxiety / Depression)</label>
+                        <select name="m5" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-indigo-500">
+                            <option value="1">1 - ฉันไม่รู้สึกวิตกกังวลหรือซึมเศร้า</option>
+                            <option value="2">2 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าเล็กน้อย</option>
+                            <option value="3">3 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าปานกลาง</option>
+                            <option value="4">4 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างมาก</option>
+                            <option value="5">5 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าอย่างร้ายแรงที่สุด</option>
+                        </select>
+                    </div>
 
-    <!-- Logic การประเมินผลด้วย JavaScript -->
-    <script>
-        function calculateQOL() {
-            const form = document.getElementById('qolForm');
-            const q1 = form.elements['q1'] ? parseInt(form.elements['q1'].value) : null;
-            const q2 = form.elements['q2'] ? parseInt(form.elements['q2'].value) : null;
-            const q3 = form.elements['q3'] ? parseInt(form.elements['q3'].value) : null;
-
-            // ตรวจสอบว่าทำครบทุกข้อไหม
-            if (isNaN(q1) || isNaN(q2) || isNaN(q3)) {
-                alert('กรุณาตอบคำถามให้ครบทุกข้อก่อนดูผลครับ');
-                return;
-            }
-
-            const totalScore = q1 + q2 + q3;
-            const resultBox = document.getElementById('resultBox');
-            const resultTitle = document.getElementById('resultTitle');
-            const resultDesc = document.getElementById('resultDesc');
-            const resultAdvice = document.getElementById('resultAdvice');
-
-            resultBox.classList.remove('hidden');
-
-            // แบ่งระดับอาการตามคะแนน
-            if (totalScore <= 1) {
-                resultBox.className = "mt-8 p-6 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-900 shadow-inner";
-                resultTitle.innerHTML = "🟢 คุณภาพชีวิตดี (อาการคงที่)";
-                resultDesc.innerText = "คะแนนรวมของคุณต่ำมาก แสดงว่าการทำงานของหัวใจยังอยู่ในระดับที่ควบคุมได้ดี ร่างกายไม่มีภาวะน้ำเกินเด่นชัด";
-                resultAdvice.innerHTML = "<strong>คำแนะนำ:</strong> ปฏิบัติตัวตามเดิม ทานยาต่อเนื่อง และมาตรวจตามนัดทุกครั้งครับ";
-            } else if (totalScore <= 3) {
-                resultBox.className = "mt-8 p-6 rounded-xl border bg-amber-50 border-amber-200 text-amber-900 shadow-inner";
-                resultTitle.innerHTML = "🟡 คุณภาพชีวิตเริ่มลดลง (ควรเฝ้าระวัง)";
-                resultDesc.innerText = "คุณเริ่มมีอาการเหนื่อยหรือบวมเล็กน้อย ซึ่งอาจเกิดจากกิจกรรมที่มากเกินไป พักผ่อนน้อย หรือเริ่มมีน้ำคั่งในร่างกาย";
-                resultAdvice.innerHTML = "<strong>คำแนะนำ:</strong> ชั่งน้ำหนักเช้านี้เทียบกับเมื่อวานว่าขึ้นไหม จำกัดน้ำและเกลืออย่างเคร่งครัด หากพักแล้ว 1-2 วันอาการไม่ดีขึ้น ควรไปพบแพทย์ก่อนนัด";
-            } else {
-                resultBox.className = "mt-8 p-6 rounded-xl border bg-rose-50 border-rose-200 text-rose-900 shadow-inner";
-                resultTitle.innerHTML = "🔴 สัญญาณอันตราย (ควรพบแพทย์ด่วน)";
-                resultDesc.innerText = "คะแนนของคุณอยู่ในเกณฑ์สูง มีอาการเหนื่อยมาก บวม หรือนอนราบไม่ได้ ซึ่งเป็นสัญญาณของภาวะหัวใจล้มเหลวเฉียบพลัน (CHF Exacerbation)";
-                resultAdvice.innerHTML = "<strong>คำแนะนำสำคัญ:</strong> แนะนำให้ไปโรงพยาบาลหรือติดต่อพยาบาลเจ้าของไข้ทันที ไม่ควรรอให้ถึงวันนัด เพื่อความปลอดภัยและรับยาขับปัสสาวะเพิ่มเติมตามดุลยพินิจของแพทย์";
-            }
-
-            // สั่งให้หน้าจอเลื่อนลงมาโฟกัสที่ผลลัพธ์
-            resultBox.scrollIntoView({ behavior: 'smooth' });
-        }
-    </script>
-</body>
-</html>
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 shadow-2xs">
+                        <label class="block font-bold text-indigo-950 mb-1">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
+                        <p class="text-xs text-indigo-700 mb-3">0 คือสุขภาพแย่ที่สุดที่จินตนาการได้ และ 100 คือสุขภาพดีที่สุดที่จินตนาการได้</p>
+                        <div class="flex items-center gap-4">
+                            <input type="range" id="eqVas" min="0"
