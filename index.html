@@ -50,7 +50,7 @@
                                 <option value="Baseline">Baseline (แรกรับ)</option>
                                 <option value="3 เดือน">ครบประเมิน 3 เดือน</option>
                                 <option value="6 เดือน">ครบประเมิน 6 เดือน</option>
-                                <option value="3 ปี">ครบประเมิน 3 ปี</option>
+                                <option value="1 ปี">ครบประเมิน 1 ปี</option>
                             </select>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
 
                         <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 shadow-2xs">
                             <label class="block font-bold text-indigo-950 mb-1">6. คะแนนสุขภาพวันนี้ (EQ-VAS คะแนน 0 - 100)</label>
-                            <p class="text-xs text-indigo-700 mb-3">0 คือสุขภาพแย่ที่สุดที่จินตนาการได้ และ 100 คือสุขภาพดีที่สุดที่จินตนาการได้</p>
+                            <p class="text-xs text-indigo-700 mb-3">0 คือสุขภาพแย่ที่สุด และ 100 คือสุขภาพดีที่สุด</p>
                             <div class="flex items-center gap-4">
                                 <input type="range" id="eqVas" min="0" max="100" value="70" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
                                 <output class="font-bold text-xl text-indigo-700 w-12 text-center">70</output>
@@ -171,7 +171,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-2">* หมายเหตุ: ข้อมูลจะบันทึกอยู่ในหน่วยความจำบราวเซอร์จำลองเครื่องคุณ</p>
+                <p class="text-[10px] text-slate-400 mt-2">* หมายเหตุ: ข้อมูลจะบันทึกอยู่ในหน่วยความจำ</p>
             </div>
         </section>
 
@@ -205,7 +205,7 @@
             const vas = parseInt(document.getElementById('eqVas').value);
 
             if(!hn || !date) {
-                alert("กรุณากรอกข้อมูล HN และ วันที่ประเมินให้ครบถ้วนด้วยครับ");
+                alert("กรุณากรอกข้อมูล HN และ วันที่ประเมินให้ครบถ้วนด้วยค่ะ");
                 return;
             }
 
@@ -227,7 +227,7 @@
             updateTable();
             renderChart();
 
-            alert(`บันทึกข้อมูลและประมวลผลผู้ป่วย HN: ${hn} เรียบร้อยแล้วครับ`);
+            alert(`บันทึกข้อมูลและประมวลผลผู้ป่วย HN: ${hn} เรียบร้อยแล้วค่ะ`);
             
             // สั่งเลื่อนหน้าจอลงมาดูสรุปข้อความ
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
@@ -257,13 +257,13 @@
 
             if (vas >= 80) {
                 bgClass = "bg-emerald-50 border border-emerald-200 text-emerald-900";
-                clinicalAdvice = "❤️ <strong>การประเมินทางคลินิก:</strong> ผู้ป่วยมีคุณภาพชีวิตในเกณฑ์ดีมาก (Excellent QOL) อาการของภาวะหัวใจล้มเหลวคงที่ได้ดี ควรสรรเสริญพฤติกรรมสุขภาพเดิมและนัดติดตามผลต่อเนื่องตามโปรแกรม";
+                clinicalAdvice = "❤️ <strong>การประเมินทางคลินิก:</strong> ผู้ป่วยมีคุณภาพชีวิตในเกณฑ์ดีมาก (Excellent QOL) อาการของภาวะหัวใจล้มเหลวคงที่ได้ดี คงพฤติกรรมสุขภาพเดิมและนัดติดตามผลต่อเนื่องตามโปรแกรม";
             } else if (vas >= 50) {
                 bgClass = "bg-amber-50 border border-amber-200 text-amber-900";
-                clinicalAdvice = "⚠️ <strong>การประเมินทางคลินิก:</strong> คุณภาพชีวิตอยู่ในระดับปานกลาง (Moderate QOL) เริ่มพบข้อจำกัดบางด้าน ควรเน้นย้ำเรื่องการจำกัดน้ำเกลือ ตรวจเช็กการทานยาให้ถูกต้อง และเฝ้าระวังภาวะน้ำเกินใกล้ชิด";
+                clinicalAdvice = "⚠️ <strong>การประเมินทางคลินิก:</strong> คุณภาพชีวิตอยู่ในระดับปานกลาง (Moderate QOL) เริ่มพบข้อจำกัดบางด้าน ควรเน้นย้ำเรื่องการจำกัดน้ำ ตรวจเช็กการทานยาให้ถูกต้อง และเฝ้าระวังภาวะน้ำเกินใกล้ชิด";
             } else {
                 bgClass = "bg-rose-50 border border-rose-200 text-rose-900";
-                clinicalAdvice = "🚨 <strong>การประเมินทางคลินิก:</strong> คุณภาพชีวิตต่ำกว่าเกณฑ์วิกฤต (Poor QOL/High Risk) เสี่ยงต่อการเกิด CHF Exacerbation หรือภาวะแทรกซ้อนรุนแรง แนะนำรายงานแพทย์เจ้าของไข้เพื่อประเมินซ้ำ หรือพิจารณาปรับยาขับปัสสาวะเพิ่มเติม";
+                clinicalAdvice = "🚨 <strong>การประเมินทางคลินิก:</strong> คุณภาพชีวิตต่ำกว่าเกณฑ์วิกฤต (Poor QOL/High Risk) เสี่ยงต่อการเกิด CHF หรือภาวะแทรกซ้อนรุนแรง แนะนำพบแพทย์เพื่อประเมินซ้ำ ";
             }
 
             // บรรจุเนื้อหาลงในกล่องข้อความ
@@ -305,7 +305,7 @@
         }
 
         function renderChart() {
-            const periods = ['Baseline', '3 เดือน', '6 เดือน', '3 ปี'];
+            const periods = ['Baseline', '3 เดือน', '6 เดือน', '1 ปี'];
             const avgVasData = periods.map(p => {
                 const filtered = eq5dRecords.filter(r => r.period === p);
                 if (filtered.length === 0) return 0;
@@ -345,7 +345,7 @@
         }
 
         function exportToCSV() {
-            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลที่จะส่งออกครับ"); return; }
+            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลที่จะส่งออกค่ะ"); return; }
             let csvContent = "\uFEFF"; 
             csvContent += "HN,วันที่ประเมิน,ช่วงเวลา,EQ-5D 5-Digit Code,EQ-VAS Score\n";
             eq5dRecords.forEach(r => { csvContent += `${r.hn},${r.date},${r.period},${r.code},${r.vas}\n`; });
