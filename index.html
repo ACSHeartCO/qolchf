@@ -312,36 +312,76 @@
             return "1"; // Default
         }
 
-        function handleSubmit() {
-            const hn = document.getElementById('patientHN').value.trim();
-            const date = document.getElementById('evalDate').value;
-            const period = document.getElementById('timePeriod').value;
-            const vas = parseInt(document.getElementById('eqVas').value);
+       function handleSubmit() {
+    const hn = document.getElementById('patientHN').value.trim();
+    const date = document.getElementById('evalDate').value;
+    const period = document.getElementById('timePeriod').value;
+    const vas = parseInt(document.getElementById('eqVas').value);
 
-            if(!hn || !date) {
-                alert("กรุณากรอกข้อมูล HN และ วันที่ประเมินให้ครบถ้วนด้วยครับ");
-                return;
-            }
+    if(!hn || !date) {
+        alert("กรุณากรอกข้อมูล HN และ วันที่ประเมินให้ครบถ้วนด้วยครับ");
+        return;
+    }
 
-            // อ่านค่าจากปุ่มตัวเลือก Radio แทนการดึงจาก Element ID แบบ Dropdown
-            const code5d = "" + getRadioValue('m1') + getRadioValue('m2') + getRadioValue('m3') + getRadioValue('m4') + getRadioValue('m5');
-            const utilityScore = calculateThailandUtilityScore(code5d);
+    // อ่านค่าจากปุ่มตัวเลือก Radio
+    const code5d = "" + getRadioValue('m1') + getRadioValue('m2') + getRadioValue('m3') + getRadioValue('m4') + getRadioValue('m5');
+    const utilityScore = calculateThailandUtilityScore(code5d);
 
-            eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
-            localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
+    // บันทึกประวัติการทำแบบประเมินคุณภาพชีวิตตามปกติ
+    eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
+    localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
-            generateSummaryText(hn, period, code5d, utilityScore, vas);
-            updateTable();
-            renderMonthlyChart();
+    generateSummaryText(hn, period, code5d, utilityScore, vas);
+    updateTable();
+    renderMonthlyChart();
 
-            alert(`บันทึกข้อมูลสำเร็จเรียบร้อยครับ`);
-            document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
+    // 🌟 ส่วนที่เพิ่มใหม่: ลอจิกส่งข้อมูลไปสร้างตารางนัดหมายอัตโนมัติเมื่อเป็น Baseline
+    if (period === "Baseline") {
+        // ดึงข้อมูลตารางนัดหมายที่มีอยู่เดิมในเครื่องออกมาก่อน
+        let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
+        
+        // เช็กซ้ำเผื่อคนไข้รายนี้เคยถูกแอดในตารางนัดแล้ว จะได้ไม่เพิ่มซ้ำซ้อน
+        const isExist = patientSchedules.some(p => p.hn === hn);
+        
+        if (!isExist) {
+            // คำนวณวันล่วงหน้า 3M, 6M, 1Y โดยใช้วันที่ประเมิน Baseline นั้นเลย
+            let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
+            let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
+            let d1 = new Date(date); d1.setFullYear(d1.getFullYear() + 1);
+
+            // ผลักเข้าสู่อาเรย์นัดหมาย
+            patientSchedules.push({
+                hn: hn,
+                baseline: date,
+                m3: d3.toISOString().split('T')[0],
+                m6: d6.toISOString().split('T')[0],
+                m1y: d1.toISOString().split('T')[0]
+            });
+
+            // บันทึกลงหน่วยความจำ
+            localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
             
-            // รีเซ็ตค่าฟอร์มกลับเป็นตั้งต้น
-            document.getElementById('patientHN').value = '';
-            resetRadios();
+            alert(`บันทึกประเมินสำเร็จ! และได้ทำการเชื่อมโยงข้อมูลผู้ป่วย ${hn} เข้าสู่ตารางนัดหมายติดตามผล 3M, 6M, 1Y เรียบร้อยแล้ว ระบบจะพาท่านไปยังหน้าตารางนัดหมายครับ`);
+        } else {
+            alert(`บันทึกประเมินสำเร็จ! (ผู้ป่วย ${hn} มีชื่อในตารางนัดหมายอยู่แล้ว)`);
         }
+        
+        // รีเซ็ตฟอร์มก่อนย้ายหน้า
+        document.getElementById('patientHN').value = '';
+        resetRadios();
+        
+        // 🚀 ลิงก์กระโดดข้ามไปหน้าตารางนัดหมายทันที
+        window.location.href = "calculator.html";
+        return; // ออกจากฟังก์ชันเลย ไม่ต้องรัน alert ตัวล่างซ้ำ
+    }
 
+    // ในกรณีที่เป็นการประเมินรอบอื่น (3M, 6M, 1Y) จะขึ้น Alert แจ้งเตือนปกติ ไม่เด้งย้ายหน้า
+    alert(`บันทึกข้อมูลการติดตามผลรอบ ${period} สำเร็จเรียบร้อยครับ`);
+    document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
+    
+    document.getElementById('patientHN').value = '';
+    resetRadios();
+}
         function resetRadios() {
             const names = ['m1', 'm2', 'm3', 'm4', 'm5'];
             names.forEach(name => {
