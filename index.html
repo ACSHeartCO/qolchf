@@ -11,7 +11,7 @@
         .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .header-title p { font-size: 12px; margin: 4px 0 0 0; color: #c7d2fe; }
         .header-nav { display: flex; gap: 8px; }
-        .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; cursor: pointer; border: none; }
         .nav-btn:hover { background-color: #6366f1; }
         .nav-btn-green { background-color: #059669; }
         .nav-btn-green:hover { background-color: #10b981; }
@@ -312,11 +312,11 @@
             updateTable();
             renderMonthlyChart();
 
-            // 🌟 จุดแก้ไขสำคัญ: ปรับโครงสร้างคีย์บันทึกข้อมูลให้ตรงกัน 🌟
-            if (period === "Baseline") {
+            // 🌟 บันทึกข้อมูลและผูกระบบเข้าหน้าสมุดทะเบียนทันทีเมื่อกรอก Baseline 🌟
+            if (period === "Baseline" || period.includes("Baseline")) {
                 let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
                 
-                // ลบเคส HN เดิมออกก่อนหน้าเพื่ออัปเดตข้อมูล Baseline ล่าสุด (ป้องกันการขึ้นซ้ำซ้อน)
+                // เคลียร์เคสเก่าออกกรณีพิมพ์ซ้ำ เพื่อป้องกันรายชื่อเบิ้ลคู่ในตาราง
                 patientSchedules = patientSchedules.filter(p => p.hn !== hn);
                 
                 let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
@@ -339,7 +339,7 @@
                 
                 document.getElementById('patientHN').value = '';
                 resetRadios();
-                window.location.href = "calculator.html";
+                window.location.href = "calculator.html"; // ลิงก์ตรงแบบถูกต้อง
                 return;
             }
 
@@ -372,9 +372,9 @@
             let issuesText = codeDetails.length > 0 ? codeDetails.join(", ") : "ไม่มีปัญหารุนแรงในทั้ง 5 ด้าน";
 
             let clinicalAdvice = ""; let alertClass = "";
-            if (score >= 0.75) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ (Utility Score ≥ 0.75) ตัวโรค CHF ได้รับการควบคุมได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป""; } 
-            else if (score >= 0.50) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) เฝ้าระวังภาวะน้ำเกิน เช่น หายใจเหนื่อย นอนราบไม่ได้ ขาบวม น้ำหนักตัวเพิ่ม รวมถึงทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด"; } 
-            else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการเกิด CHF แนะนำพบแพทย์ เพื่อประเมินด่วน"; }
+            if (score >= 0.75) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ ควบคุมโรคได้ดี"; } 
+            else if (score >= 0.50) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง ควรตรวจสอบเรื่องภาวะคั่งน้ำ"; } 
+            else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตต่ำวิกฤต แนะนำรายงานทีม Case Manager เพื่อประเมินด่วน"; }
 
             content.innerHTML = `
                 <div class="summary-alert-box ${alertClass}">
@@ -437,7 +437,7 @@
         function clearAllData() {
             if(confirm("คุณต้องการล้างข้อมูลประวัติที่เคยบันทึกไว้ทั้งหมดใช่หรือไม่?")) {
                 eq5dRecords = []; localStorage.removeItem('eq5dRecords');
-                localStorage.removeItem('patientSchedules'); // เคลียร์ตารางนัดหมายร่วมด้วย
+                localStorage.removeItem('patientSchedules');
                 document.getElementById('summary-box').classList.add('hidden');
                 updateTable(); renderMonthlyChart(); alert("ล้างข้อมูลเรียบร้อยแล้วครับ");
             }
