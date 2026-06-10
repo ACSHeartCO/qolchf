@@ -171,12 +171,12 @@
                     </fieldset>
 
                     <fieldset class="q-box">
-                        <legend>4. อาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</legend>
+                        <legend>4. อาาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</legend>
                         <div class="radio-group">
                             <label class="radio-label"><input type="radio" name="m4" value="1" checked> 1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</label>
                             <label class="radio-label"><input type="radio" name="m4" value="2"> 2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</label>
                             <label class="radio-label"><input type="radio" name="m4" value="3"> 3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</label>
-                            <label class="radio-label"><input type="radio" name="m4" value="4"> 4 - ฉันมีอาการเจ็บปวดorรู้สึกไม่สบายตัวอย่างมาก</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="4"> 4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</label>
                             <label class="radio-label"><input type="radio" name="m4" value="5"> 5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</label>
                         </div>
                     </fieldset>
@@ -323,7 +323,6 @@
             let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
             let existingPatient = patientSchedules.find(p => p.hn === hn);
 
-            // 🌟 ซ่อมแซมดักทุกเงื่อนไข: ยอมรับและปลดล็อกปุ่ม Submit ให้บันทึกผ่านได้หมดทุกรอบเดือน 🌟
             if (period === "Baseline" || period.includes("แรกรับ")) {
                 let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
                 let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
@@ -348,7 +347,7 @@
                 } else {
                     patientSchedules.push(newRecord);
                 }
-                alert(`🎯 บันทึกสำเร็จ!\nลงทะเบียนผู้ป่วย ${hn} (รอบ Baseline) เรียบร้อยแล้วค่ะ คุณพยาบาลสามารถก๊อปปี้สรุปผลทางคลินิกด้านล่างได้เลยค่ะ`);
+                alert(`🎯 บันทึกสำเร็จ!\nทำการลงทะเบียนชื่อผู้ป่วย ${hn} (รอบ Baseline) เรียบร้อยแล้วค่ะ คุณพยาบาลสามารถก๊อปปี้สรุปผลทางคลินิกด้านล่างได้เลยค่ะ`);
             } else {
                 if (!existingPatient) {
                     existingPatient = {
@@ -399,7 +398,7 @@
             const content = document.getElementById('summary-content');
             box.classList.remove('hidden');
 
-            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "ความวิตกกังวล/ซึมเศร้า"];
+            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "ความวิตกกังวล/ความซึมเศร้า"];
             let codeDetails = [];
             for (let i = 0; i < 5; i++) {
                 let lvl = code[i];
