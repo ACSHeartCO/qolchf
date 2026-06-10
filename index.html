@@ -46,10 +46,8 @@
         .vas-output { font-size: 20px; font-weight: 700; color: #4338ca; width: 48px; text-align: center; }
 
         .btn-panel { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 15px; }
-        
         .submit-btn { width: 100%; background: #4338ca; color: white; border: none; padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; font-size: 15px; }
         .submit-btn:hover { background: #3730a3; }
-        
         .clear-btn { width: 100%; background: #64748b; color: white; border: none; padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; font-size: 14px; }
         .clear-btn:hover { background: #475569; }
         
@@ -57,14 +55,12 @@
         .table-btn-group { display: flex; gap: 6px; }
         .btn-action { border: none; padding: 6px 12px; font-size: 12px; font-weight: 500; border-radius: 6px; cursor: pointer; }
         .btn-csv { background: #059669; color: white; }
-        .btn-csv:hover { background: #047857; }
         .btn-del { background: #ef4444; color: white; }
-        .btn-del:hover { background: #b91c1c; }
 
         .chart-wrapper { height: 240px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; margin-top: 16px; }
         .chart-month-col { width: 8%; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
         .chart-bars-container { display: flex; align-items: flex-end; gap: 2px; height: 200px; width: 100%; justify-content: center; }
-        .chart-bar { width: 6px; min-height: 2px; border-radius: 2px 2px 0 0; position: relative; transition: height 0.3s; }
+        .chart-bar { width: 6px; min-height: 2px; border-radius: 2px 2px 0 0; }
         .cb-base { background-color: #64748b; }
         .cb-3m { background-color: #0ea5e9; }
         .cb-6m { background-color: #f59e0b; }
@@ -126,10 +122,10 @@
                         <div class="form-group">
                             <label>ช่วงเวลาประเมิน *</label>
                             <select id="timePeriod" required>
-                                <option value="Baseline">Baseline (แรกรับ)</option>
-                                <option value="3 เดือน">ครบประเมิน 3 เดือน</option>
-                                <option value="6 เดือน">ครบประเมิน 6 เดือน</option>
-                                <option value="1 ปี">ครบประเมิน 1 ปี</option>
+                                <option value="Baseline">Baseline</option>
+                                <option value="3 เดือน">3 เดือน</option>
+                                <option value="6 เดือน">6 เดือน</option>
+                                <option value="1 ปี">1 ปี</option>
                             </select>
                         </div>
                     </div>
@@ -181,7 +177,7 @@
                     </fieldset>
 
                     <fieldset class="q-box">
-                        <legend>5. อาการวิตกกังวล หรือซึมเศr้า (Anxiety / Depression)</legend>
+                        <legend>5. อาการวิตกกังวล หรือความซึมเศร้า (Anxiety / Depression)</legend>
                         <div class="radio-group">
                             <label class="radio-label"><input type="radio" name="m5" value="1" checked> 1 - ฉันไม่รู้สึกวิตกกังวลหรือซึมเศร้า</label>
                             <label class="radio-label"><input type="radio" name="m5" value="2"> 2 - ฉันรู้สึกวิตกกังวลหรือซึมเศร้าเล็กน้อย</label>
@@ -200,7 +196,7 @@
                     </div>
 
                     <div class="btn-panel">
-                        <button type="button" class="submit-btn" onclick="handleSubmit()">💾 บันทึกและวิเคราะห์ข้อมูล (Submit)</button>
+                        <button type="button" class="submit-btn" onclick="handleSubmit()">💾 บันทึกข้อมูล (Submit)</button>
                         <button type="button" class="clear-btn" onclick="handleManualClear()">➕ เพิ่มเคสถัดไป</button>
                     </div>
                 </form>
@@ -228,7 +224,7 @@
                 <div class="flex-between">
                     <h2 class="card-title" style="border:none; padding:0; font-size:16px;">📋 รายการบันทึกเมื่อเร็วๆ นี้</h2>
                     <div class="table-btn-group">
-                        <button type="button" class="btn-action btn-csv" onclick="exportToCSV()">📥 Export Excel/CSV</button>
+                        <button type="button" class="btn-action btn-csv" onclick="exportToCSV()">📥 Export CSV</button>
                         <button type="button" class="btn-action btn-del" onclick="clearAllData()">🗑️ ล้างทั้งหมด</button>
                     </div>
                 </div>
@@ -261,29 +257,28 @@
             const paramHN = urlParams.get('hn');
             const paramPeriod = urlParams.get('period');
 
-            if (paramHN && paramPeriod) {
-                document.getElementById('patientHN').value = paramHN;
-                document.getElementById('timePeriod').value = paramPeriod;
-                alert(`ดึงข้อมูลอัตโนมัติสำเร็จ: ผู้ป่วย ${paramHN} กำลังทำประเมินรอบ [${paramPeriod}]`);
+            if (paramHN) document.getElementById('patientHN').value = paramHN;
+            if (paramPeriod) {
+                // เคลียร์ปัญหาส่งข้อความสลับล็อกภาษาไทย
+                let cleanPeriod = paramPeriod.trim();
+                if(cleanPeriod.includes("3")) document.getElementById('timePeriod').value = "3 เดือน";
+                else if(cleanPeriod.includes("6")) document.getElementById('timePeriod').value = "6 เดือน";
+                else if(cleanPeriod.includes("1")) document.getElementById('timePeriod').value = "1 ปี";
+                else document.getElementById('timePeriod').value = "Baseline";
             }
 
             updateTable();
             renderMonthlyChart();
         };
 
-        // 🌟 ล้างลอจิกหักคะแนนที่เคยทำระบบล่มออก เปลี่ยนเป็นฟังก์ชันคำนวณเบสิกแบบปลอดภัยสูงสุด 🌟
-        function calculateThailandUtilityScore(code) {
-            if (!code || code === "11111") return 1.000;
-            let baseScore = 1.000;
-            // คำนวณแบบจำลองอย่างง่ายเพื่อป้องกันโค้ดค้างข้ามหน้าจอ
-            let totalDeduction = 0;
+        function calculateSimpleScore(code) {
+            if (code === "11111") return 1.000;
+            let val = 1.000 - 0.20;
             for(let i=0; i<5; i++) {
-                let val = parseInt(code.charAt(i)) || 1;
-                if(val > 1) totalDeduction += (val - 1) * 0.12;
+                let num = parseInt(code.charAt(i)) || 1;
+                if(num > 1) val -= (num - 1) * 0.11;
             }
-            let finalScore = baseScore - 0.20 - totalDeduction;
-            if(finalScore < -0.2) finalScore = -0.2;
-            return parseFloat(finalScore.toFixed(3));
+            return parseFloat(Math.max(-0.2, val).toFixed(3));
         }
 
         function getRadioValue(name) {
@@ -301,14 +296,14 @@
             const vas = parseInt(document.getElementById('eqVas').value);
 
             if(!hn || !date) {
-                alert("กรุณากรอกข้อมูลให้ครบถ้วนครับ");
+                alert("กรุณากรอกข้อมูลให้ครบถ้วนค่ะ");
                 return;
             }
 
             const code5d = "" + getRadioValue('m1') + getRadioValue('m2') + getRadioValue('m3') + getRadioValue('m4') + getRadioValue('m5');
-            const utilityScore = calculateThailandUtilityScore(code5d);
+            const utilityScore = calculateSimpleScore(code5d);
 
-            // บันทึกตารางประวัติข้างจอแรก
+            // บันทึกตารางข้างจอหลัก
             eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
             localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
@@ -316,44 +311,49 @@
             updateTable();
             renderMonthlyChart();
 
-            // 🌟 ลอจิกซิงค์ทะลวงข้ามหน้าฉบับทุบโต๊ะ (หมดปัญหาคำว่า Baseline พิมพ์ไม่ตรงล็อก) 🌟
+            // 🌟 ทะลวงฐานข้อมูลส่งผลตรง ๆ ลีนที่สุด ไม่มีติดล็อก 🌟
             let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
-            let existingPatient = patientSchedules.find(p => p.hn === hn);
+            let pIndex = patientSchedules.findIndex(item => item.hn === hn);
 
-            if (!existingPatient) {
-                // ถ้าไม่เคยมีคนไข้คนนี้ในสมุดทะเบียนเลย ให้สร้างโครงสร้างใหม่ทันที
+            let scorePayload = { date: date, code: code5d, score: utilityScore, vas: vas };
+
+            if (pIndex === -1) {
+                // ถ้ายังไม่เคยมียอดคนไข้คนนี้เลย
                 let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
                 let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
                 let d1 = new Date(date); d1.setFullYear(d1.getFullYear() + 1);
 
-                existingPatient = {
+                let newObj = {
                     hn: hn, baseline: date, code: code5d, score: utilityScore, vas: vas,
                     m3Date: d3.toISOString().split('T')[0],
                     m6Date: d6.toISOString().split('T')[0],
                     m1yDate: d1.toISOString().split('T')[0],
                     m3Data: null, m6Data: null, m1yData: null
                 };
-                patientSchedules.push(existingPatient);
-            }
 
-            // จัดยัดข้อมูลก้อนคะแนนลงตามจริง โดยดูจากระยะเวลาที่พยาบาลเลือก
-            let scorePayload = { date: date, code: code5d, score: utilityScore, vas: vas };
+                if (period.includes("3")) newObj.m3Data = scorePayload;
+                else if (period.includes("6")) newObj.m6Data = scorePayload;
+                else if (period.includes("1")) newObj.m1yData = scorePayload;
 
-            if (period === "Baseline" || period.includes("แรกรับ")) {
-                existingPatient.baseline = date;
-                existingPatient.code = code5d;
-                existingPatient.score = utilityScore;
-                existingPatient.vas = vas;
-            } else if (period === "3 เดือน" || period.includes("3")) {
-                existingPatient.m3Data = scorePayload;
-            } else if (period === "6 เดือน" || period.includes("6")) {
-                existingPatient.m6Data = scorePayload;
-            } else if (period === "1 ปี" || period.includes("1")) {
-                existingPatient.m1yData = scorePayload;
+                patientSchedules.push(newObj);
+            } else {
+                // ถ้ามีรายชื่ออยู่แล้ว จับยัดลงตามไทม์ไลน์
+                if (period === "Baseline") {
+                    patientSchedules[pIndex].baseline = date;
+                    patientSchedules[pIndex].code = code5d;
+                    patientSchedules[pIndex].score = utilityScore;
+                    patientSchedules[pIndex].vas = vas;
+                } else if (period.includes("3")) {
+                    patientSchedules[pIndex].m3Data = scorePayload;
+                } else if (period.includes("6")) {
+                    patientSchedules[pIndex].m6Data = scorePayload;
+                } else if (period.includes("1")) {
+                    patientSchedules[pIndex].m1yData = scorePayload;
+                }
             }
 
             localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
-            alert(`🎯 บันทึกข้อมูลของ ${hn} รอบ [${period}] สำเร็จแล้วค่ะ!\nเลื่อนหน้าจอลงด้านล่างคัดลอกข้อความวิเคราะห์ได้ทันทีค่ะ`);
+            alert(`🎯 บันทึกสำเร็จ!\nเก็บข้อมูลผู้ป่วย ${hn} รอบ [${period}] เรียบร้อยแล้วค่ะ คัดลอกผลลัพธ์ที่ด้านล่างได้เลยค่ะ`);
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -390,7 +390,7 @@
 
             let clinicalAdvice = ""; let alertClass = "";
             if (score >= 0.70) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ ควบคุมโรคได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป"; } 
-            else if (score >= 0.40) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย ควรตรวจสอบอาการคั่งน้ำ น้ำหนักตัว และททวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด"; } 
+            else if (score >= 0.40) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย ควรตรวจสอบอาการคั่งน้ำ น้ำหนักตัว และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด"; } 
             else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตต่ำวิกฤต มีความเสี่ยงสูงต่อการเกิด CHF Exacerbation แนะนำรายงานทีมพยาบาล Case Manager เพื่อประเมินด่วน"; }
 
             content.innerHTML = `
@@ -410,7 +410,7 @@
             if (eq5dRecords.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-row">ยังไม่มีข้อมูลบันทึกในขณะนี้</td></tr>'; return; }
             [...eq5dRecords].reverse().forEach(rec => {
                 let pClass = "tb-base";
-                if(rec.period === "3 เดือน") pClass = "tb-3m"; else if(rec.period === "6 เดือน") pClass = "tb-6m"; else if(rec.period === "1 ปี") pClass = "tb-1y";
+                if(rec.period.includes("3")) pClass = "tb-3m"; else if(rec.period.includes("6")) pClass = "tb-6m"; else if(rec.period.includes("1")) pClass = "tb-1y";
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td><strong>${rec.hn}</strong></td><td>${rec.date}</td><td><span class="t-badge ${pClass}">${rec.period}</span></td><td class="tbl-utility">${parseFloat(rec.score).toFixed(3)}</td><td style="text-align:center; font-weight:600;">${rec.vas}</td>`;
                 tbody.appendChild(tr);
@@ -426,7 +426,11 @@
                     const dateParts = rec.date.split('-');
                     if(dateParts.length >= 2) {
                         const monthIndex = parseInt(dateParts[1], 10) - 1;
-                        if(monthIndex >= 0 && monthIndex <= 11 && chartDataStructure[rec.period]) { chartDataStructure[rec.period][monthIndex]++; }
+                        let pKey = "Baseline";
+                        if(rec.period.includes("3")) pKey = "3 เดือน";
+                        else if(rec.period.includes("6")) pKey = "6 เดือน";
+                        else if(rec.period.includes("1")) pKey = "1 ปี";
+                        if(monthIndex >= 0 && monthIndex <= 11 && chartDataStructure[pKey]) { chartDataStructure[pKey][monthIndex]++; }
                     }
                 }
             });
