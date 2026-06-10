@@ -45,7 +45,6 @@
         .vas-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #4338ca; border-radius: 50%; }
         .vas-output { font-size: 20px; font-weight: 700; color: #4338ca; width: 48px; text-align: center; }
 
-        /* ปรับปรุงแผงปุ่มคอนโทรล */
         .btn-panel { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 15px; }
         @media (max-width: 480px) { .btn-panel { grid-template-columns: 1fr; } }
         
@@ -176,7 +175,7 @@
                         <legend>4. อาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</legend>
                         <div class="radio-group">
                             <label class="radio-label"><input type="radio" name="m4" value="1" checked> 1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</label>
-                            <label class="radio-label"><input type="radio" name="m4" value="2"> 2 - ฉันมีอาการเจ็บปวดorรู้สึกไม่สบายตัวเล็กน้อย</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="2"> 2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</label>
                             <label class="radio-label"><input type="radio" name="m4" value="3"> 3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</label>
                             <label class="radio-label"><input type="radio" name="m4" value="4"> 4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</label>
                             <label class="radio-label"><input type="radio" name="m4" value="5"> 5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</label>
@@ -318,16 +317,14 @@
             eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
             localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
-            // เรียกกล่องสรุปแปลผลขึ้นจอแสดงผล
             generateSummaryText(hn, period, code5d, utilityScore, vas);
             updateTable();
             renderMonthlyChart();
 
-            // จัดการซิงค์ข้อมูลนัดหมายเข้าฐานข้อมูลร่วมก้อนเดิม
             let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
             let existingPatient = patientSchedules.find(p => p.hn === hn);
 
-            if (period === "Baseline" || period.includes("Baseline")) {
+            if (period === "Baseline") {
                 let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
                 let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
                 let d1 = new Date(date); d1.setFullYear(d1.getFullYear() + 1);
@@ -351,6 +348,7 @@
                 } else {
                     patientSchedules.push(newRecord);
                 }
+                alert(`🎯 บันทึกสำเร็จ!\nทำการลงทะเบียนชื่อผู้ป่วย ${hn} (รอบ Baseline) เรียบร้อยแล้วครับ`);
             } else {
                 if (!existingPatient) {
                     existingPatient = {
@@ -365,16 +363,14 @@
                 if (period === "3 เดือน") existingPatient.m3Data = dataObj;
                 else if (period === "6 เดือน") existingPatient.m6Data = dataObj;
                 else if (period === "1 ปี") existingPatient.m1yData = dataObj;
+
+                alert(`🎯 บันทึกสำเร็จ!\nอัปเดตประวัติการติดตามผลช่วง [${period}] ของผู้ป่วย ${hn} เรียบร้อยแล้วครับ`);
             }
 
             localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
-            
-            // 🌟 จุดเปลี่ยนสำคัญ: แจ้งเตือน และเลื่อนสกรอลล์ลงไปให้ก๊อปปี้ข้อมูลทันที ค้างค่าฟอร์มไว้ตามบรีฟ 🌟
-            alert(`🎯 บันทึกข้อมูลเข้าระบบเรียบร้อยแล้วค่ะ!\nคุณพยาบาลสามารถคัดลอกข้อความวิเคราะห์ทางคลินิกด้านล่างฟอร์มได้ทันที และเมื่อเสร็จแล้วให้คลิกปุ่ม "เพิ่มเคสถัดไป" เพื่อเริ่มเคสใหม่ค่ะ`);
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ฟังก์ชันล้างฟอร์มแมนนวลเมื่อคุณพยาบาลก๊อปปี้ข้อความแปลผลเสร็จเรียบร้อยแล้ว
         function handleManualClear() {
             document.getElementById('patientHN').value = '';
             document.getElementById('timePeriod').value = 'Baseline';
@@ -398,7 +394,7 @@
             const content = document.getElementById('summary-content');
             box.classList.remove('hidden');
 
-            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "วิตกกังวล/ซึมเศร้า"];
+            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "วิตกกังวล/ซึมเศr้า"];
             let codeDetails = [];
             for (let i = 0; i < 5; i++) {
                 let lvl = code[i];
@@ -407,9 +403,9 @@
             let issuesText = codeDetails.length > 0 ? codeDetails.join(", ") : "ไม่มีปัญหารุนแรงในทั้ง 5 ด้าน";
 
             let clinicalAdvice = ""; let alertClass = "";
-            if (score >= 0.75) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ (Utility Score ≥ 0.75) ตัวโรค CHF ได้รับการควบคุมได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป""; } 
-            else if (score >= 0.50) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) เฝ้าระวังภาวะน้ำเกิน เช่น หายใจเหนื่อย นอนราบไม่ได้ ขาบวม น้ำหนักตัวเพิ่ม รวมถึงทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด"; } 
-            else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการเกิด CHF แนะนำพบแพทย์ เพื่อประเมินด่วน"; }
+            if (score >= 0.75) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ ควบคุมโรคได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป"; } 
+            else if (score >= 0.50) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย ควรตรวจสอบอาการคั่งน้ำ น้ำหนักตัว และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด"; } 
+            else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตต่ำวิกฤต มีความเสี่ยงสูงต่อการเกิด CHF Exacerbation แนะนำรายงานทีมพยาบาล Case Manager เพื่อประเมินด่วน"; }
 
             content.innerHTML = `
                 <div class="summary-alert-box ${alertClass}">
