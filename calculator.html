@@ -1,1 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHF Patient Registry & QOL Tracking</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
+        header { background-color: #4338ca; color: white; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .header-wrap { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; }
+        .header-title p { font-size: 12px; margin: 4px 0 0 0; color: #c7d2fe; }
+        .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .nav-btn:hover { background-color: #6366f1; }
 
+        .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+        .card-subtitle { font-size: 12px; color: #94a3b8; margin: 0 0 20px 0; display: block; }
+
+        .table-scroll { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 1100px; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        th { background: #f8fafc; font-weight: 600; color: #64748b; white-space: nowrap; }
+        
+        /* สไตล์คอลัมน์ประวัติ Baseline */
+        .baseline-info { font-size: 11px; color: #475569; line-height: 1.4; }
+        .code-badge { font-family: monospace; font-weight: 700; background: #e0e7ff; color: #4338ca; padding: 1px 5px; border-radius: 4px; }
+        .utility-badge { font-family: monospace; font-weight: 700; background: #f5f3ff; color: #5b21b6; padding: 2px 6px; border-radius: 6px; font-size: 13px; display: inline-block; margin-top: 2px; border: 1px solid #ddd6fe; }
+        .issue-text { font-size: 11px; color: #dc2626; margin-top: 4px; font-weight: 500; }
+        
+        /* ปุ่มลัดสำหรับการติดตามผล */
+        .followup-box { font-size: 11px; }
+        .followup-date { font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+        .btn-go { display: inline-block; padding: 4px 8px; font-size: 10px; font-weight: 600; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; text-align: center; }
+        .bg-3m { background-color: #0ea5e9; } .bg-3m:hover { background-color: #0369a1; }
+        .bg-6m { background-color: #f59e0b; color: #1e293b; } .bg-6m:hover { background-color: #d97706; color: white; }
+        .bg-1y { background-color: #a855f7; } .bg-1y:hover { background-color: #6b21a8; }
+        
+        .btn-del { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; }
+        .btn-del:hover { background-color: #dc2626; }
+        .empty-row { text-align: center; color: #94a3b8; padding: 50px; font-style: italic; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-wrap">
+            <div class="header-title">
+                <h1>📋 CHF Patient Registry & Care Tracking</h1>
+                <p>สมุดทะเบียนรายชื่อผู้ป่วยและสรุปประวัติผลลัพธ์ Baseline ควบคู่กับกำหนดการติดตามนัดหมาย</p>
+            </div>
+            <div class="header-nav">
+                <a href="index.html" class="nav-btn">📝 กลับหน้าประเมินหลัก (EQ-5D-5L)</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="card">
+            <h2 class="card-title">👥 ทะเบียนประวัติข้อมูลและสถานะวันครบกำหนดประเมิน</h2>
+            <span class="card-subtitle">เชื่อมโยงข้อมูลผลประเมิน Baseline อัตโนมัติ เพื่อเฝ้าระวังกลุ่มมิติที่มีปัญหา และกดบันทึกการติดตามผลตามกำหนดการ</span>
+            
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">HN ผู้ป่วย</th>
+                            <th style="width: 28%;">ข้อมูลประวัติผลแรกรับ (Baseline History)</th>
+                            <th style="width: 18%;">ครบกำหนด 3 เดือน</th>
+                            <th style="width: 18%;">ครบกำหนด 6 เดือน</th>
+                            <th style="width: 18%;">ครบกำหนด 1 ปี</th>
+                            <th style="text-align:center; width: 8%;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedulerTable">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ดึงฐานข้อมูลแผนนัดหมายที่เชื่อมโยงมาจากหน้าแรก
+        let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
+
+        window.onload = function() {
+            renderSchedulerTable();
+        };
+
+        function formatDateTH(dateString) {
+            if(!dateString) return "-";
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('th-TH', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+        }
+
+        // ฟังก์ชันถอดรหัสเพื่อหามิติที่มีปัญหาเชิงการพยาบาล (ระดับความรุนแรง 2-5)
+        function getIssuesText(code) {
+            if (!code || code === "11111") return "✅ ไม่พบปัญหารุนแรงในทั้ง 5 ด้าน";
+            
+            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "วิตกกังวล/ซึมเศร้า"];
+            let issues = [];
+            
+            for (let i = 0; i < 5; i++) {
+                let lvl = parseInt(code[i]);
+                if (lvl > 1) {
+                    issues.push(`${textLabels[i]} (Lvl ${lvl})`);
+                }
+            }
+            return "⚠️ พบปัญหาด้าน: " + issues.join(", ");
+        }
+
+        function renderSchedulerTable() {
+            const tbody = document.getElementById('schedulerTable');
+            tbody.innerHTML = '';
+
+            if(patientSchedules.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-row">ยังไม่มีข้อมูลในสมุดทะเบียนรายชื่อขณะนี้<br><span style="font-size:11px; font-weight:normal; color:#b45309;">(รันการประเมินเคสใหม่โดยเลือกหัวข้อ "Baseline (แรกรับ)" ที่หน้าแรก ระบบจะแอดรายชื่อมาที่นี่ให้เองโดยอัตโนมัติ)</span></td></tr>';
+                return;
+            }
+
+            patientSchedules.forEach((p, index) => {
+                const tr = document.createElement('tr');
+                
+                // ถอดรหัสปัญหาและเซ็ตหน้าตาข้อความสรุป Baseline ที่ดึงมาจากหน้าแรก
+                const baselineDateFormatted = formatDateTH(p.baseline);
+                const codeProfile = p.code || "11111";
+                const scoreProfile = p.score ? parseFloat(p.score).toFixed(3) : "1.000";
+                const vasProfile = p.vas || "70";
+                const problemText = getIssuesText(codeProfile);
+
+                tr.innerHTML = `
+                    <td style="font-weight:700; color:#4338ca; font-size:14px;">${p.hn}</td>
+                    
+                    <td>
+                        <div class="baseline-info">
+                            <strong>วันที่ทำ Baseline:</strong> ${baselineDateFormatted}<br>
+                            <strong>รหัส 5 มิติ:</strong> <span class="code-badge">${codeProfile}</span> | <strong>EQ-VAS:</strong> ${vasProfile}/100<br>
+                            <strong>ดัชนีคุณภาพชีวิต (ไทย):</strong> <span class="utility-badge">${scoreProfile}</span>
+                            <div class="issue-text">${problemText}</div>
+                        </div>
+                    </td>
+                    
+                    <td>
+                        <div class="followup-box">
+                            <div class="followup-date">${formatDateTH(p.m3)}</div>
+                            <button class="btn-go bg-3m" onclick="goToAssessment('${p.hn}', '3 เดือน')">📝 ประเมิน 3M</button>
+                        </div>
+                    </td>
+                    
+                    <td>
+                        <div class="followup-box">
+                            <div class="followup-date">${formatDateTH(p.m6)}</div>
+                            <button class="btn-go bg-6m" onclick="goToAssessment('${p.hn}', '6 เดือน')">📝 ประเมิน 6M</button>
+                        </div>
+                    </td>
+                    
+                    <td>
+                        <div class="followup-box">
+                            <div class="followup-date">${formatDateTH(p.m1y)}</div>
+                            <button class="btn-go bg-1y" onclick="goToAssessment('${p.hn}', '1 ปี')">📝 ประเมิน 1Y</button>
+                        </div>
+                    </td>
+                    
+                    <td style="text-align:center; vertical-align: middle;">
+                        <button class="btn-del" onclick="deleteSchedule(${index})">🗑️ ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ลิงก์ทางลัดดึง HN และรอบการติดตามผลข้ามฟากกลับไปหน้าฟอร์มหลัก
+        function goToAssessment(hn, period) {
+            window.location.href = `index.html?hn=${encodeURIComponent(hn)}&period=${encodeURIComponent(period)}`;
+        }
+
+        function deleteSchedule(index) {
+            if(confirm("คุณต้องการลบข้อมูลผู้ป่วยรายนี้ออกจากสมุดทะเบียนและตารางนัดหมายใช่หรือไม่?")) {
+                patientSchedules.splice(index, 1);
+                localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
+                renderSchedulerTable();
+            }
+        }
+    </script>
+</body>
+</html>
