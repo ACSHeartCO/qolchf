@@ -321,6 +321,17 @@
             document.getElementById('patientHN').value = '';
             resetRadios();
         }
+        /* ตรวจเช็กภายในฟังก์ชัน handleSubmit() ในไฟล์ index.html ตรงท่อนแอดข้อมูลเข้าตารางนัดหมาย */
+patientSchedules.push({
+    hn: hn,
+    baseline: date,
+    code: code5d,          // 🌟 ส่งรหัส 5 หลักมาด้วย
+    score: utilityScore,   // 🌟 ส่งคะแนนดัชนีมาด้วย
+    vas: vas,              // 🌟 ส่งคะแนน VAS มาด้วย
+    m3: d3.toISOString().split('T')[0],
+    m6: d6.toISOString().split('T')[0],
+    m1y: d1.toISOString().split('T')[0]
+});
 
         function resetRadios() {
             const names = ['m1', 'm2', 'm3', 'm4', 'm5'];
