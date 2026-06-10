@@ -314,17 +314,19 @@
             const code5d = "" + getRadioValue('m1') + getRadioValue('m2') + getRadioValue('m3') + getRadioValue('m4') + getRadioValue('m5');
             const utilityScore = calculateThailandUtilityScore(code5d);
 
+            // 1. บันทึกลงตารางประวัติหลักขวามือ
             eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
             localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
+            // 2. เรียกกล่องแปลผลทางคลินิกขึ้นจอแสดงผล (ค้างหน้าจอตามสั่ง)
             generateSummaryText(hn, period, code5d, utilityScore, vas);
             updateTable();
             renderMonthlyChart();
 
+            // 3. 🌟 ปรับปรุงลอจิกการส่งข้อมูลข้ามไปยังสมุดทะเบียน (ซ่อมแซมจุดบั๊กของรอบ 3M, 6M, 1Y) 🌟
             let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
             let existingPatient = patientSchedules.find(p => p.hn === hn);
 
-            // 🌟 แก้ไขจุดบกพร่อง: ผูกข้อมูลและส่งค่ากลับสมุดทะเบียนให้รอบ 3M, 6M, 1Y ทำงานได้จริง 🌟
             if (period === "Baseline") {
                 let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
                 let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
@@ -349,9 +351,11 @@
                 } else {
                     patientSchedules.push(newRecord);
                 }
-                alert(`🎯 บันทึกสำเร็จ!\nลงทะเบียนผู้ป่วย ${hn} (รอบ Baseline) สู่ตารางนัดหมายเรียบร้อยแล้วค่ะ`);
+                alert(`🎯 บันทึกสำเร็จ!\nทำการลงทะเบียนชื่อผู้ป่วย ${hn} (รอบ Baseline) เรียบร้อยแล้วค่ะ คุณพยาบาลสามารถก๊อปปี้สรุปผลทางคลินิกด้านล่างได้เลยค่ะ`);
             } else {
+                // 🛠️ ท่อนซ่อมแซมวิกฤต: บังคับยัดค่าลงตัวแปรย่อยภายในสมุดนัดหมายรายตัว 🛠️
                 if (!existingPatient) {
+                    // กรณีเปิดบันทึกข้ามหน้าโดยไม่มี Baseline มาก่อนหน้า
                     existingPatient = {
                         hn: hn, baseline: null, code: null, score: null, vas: null,
                         m3Date: '-', m6Date: '-', m1yDate: '-',
@@ -360,15 +364,24 @@
                     patientSchedules.push(existingPatient);
                 }
 
-                let dataObj = { date, code: code5d, score: utilityScore, vas };
-                if (period === "3 เดือน") existingPatient.m3Data = dataObj;
-                else if (period === "6 เดือน") existingPatient.m6Data = dataObj;
-                else if (period === "1 ปี") existingPatient.m1yData = dataObj;
+                // แนบโครงสร้างก้อนวัตถุสถิติ
+                let dataObj = { date: date, code: code5d, score: utilityScore, vas: vas };
+                
+                if (period === "3 เดือน") {
+                    existingPatient.m3Data = dataObj;
+                } else if (period === "6 เดือน") {
+                    existingPatient.m6Data = dataObj;
+                } else if (period === "1 ปี") {
+                    existingPatient.m1yData = dataObj;
+                }
 
-                alert(`🎯 บันทึกสำเร็จ!\nอัปเดตประวัติการติดตามผลช่วง [${period}] ของผู้ป่วย ${hn} ลงสมุดทะเบียนเรียบร้อยแล้วค่ะ`);
+                alert(`🎯 บันทึกสำเร็จ!\nทำการอัปเดตและบันทึกประวัติผลประเมินช่วง [${period}] ของผู้ป่วย ${hn} ลงสู่สมุดทะเบียนกลางเรียบร้อยแล้วค่ะ`);
             }
 
+            // บันทึกการเปลี่ยนแปลงกลับเข้าหน่วยความจำถาวรเบราว์เซอร์
             localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
+            
+            // สกรอลล์หน้าจอลงมาโฟกัสที่กล่องสรุปผลเพื่อให้คุณพยาบาลกด Copy ข้อความได้ง่าย ๆ
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -395,7 +408,7 @@
             const content = document.getElementById('summary-content');
             box.classList.remove('hidden');
 
-            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "วิตกกังวล/ซึมเศร้า"];
+            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "ความวิตกกังวล/ซึมเศร้า"];
             let codeDetails = [];
             for (let i = 0; i < 5; i++) {
                 let lvl = code[i];
