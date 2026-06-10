@@ -31,7 +31,7 @@
         .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
         .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: white; width: 100%; box-sizing: border-box; }
 
-        .q-section-title { font-size: 14px; font-weight: 700; color: #312e81; text-transform: uppercase; tracking: 0.05em; margin: 20px 0 12px 0; }
+        .q-section-title { font-size: 14px; font-weight: 700; color: #312e81; text-transform: uppercase; margin: 20px 0 12px 0; }
         .q-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
         .q-box legend { font-weight: 700; font-size: 14px; color: #0f172a; margin-bottom: 10px; padding: 0; }
         .radio-group { display: flex; flex-direction: column !important; gap: 8px; width: 100%; }
@@ -45,8 +45,15 @@
         .vas-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #4338ca; border-radius: 50%; }
         .vas-output { font-size: 20px; font-weight: 700; color: #4338ca; width: 48px; text-align: center; }
 
+        /* ปรับปรุงแผงปุ่มคอนโทรล */
+        .btn-panel { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 15px; }
+        @media (max-width: 480px) { .btn-panel { grid-template-columns: 1fr; } }
+        
         .submit-btn { width: 100%; background: #4338ca; color: white; border: none; padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.2); }
         .submit-btn:hover { background: #3730a3; }
+        
+        .clear-btn { width: 100%; background: #64748b; color: white; border: none; padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; font-size: 14px; }
+        .clear-btn:hover { background: #475569; }
         
         .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
         .table-btn-group { display: flex; gap: 6px; }
@@ -169,7 +176,7 @@
                         <legend>4. อาการเจ็บปวด หรือความไม่สบายตัว (Pain / Discomfort)</legend>
                         <div class="radio-group">
                             <label class="radio-label"><input type="radio" name="m4" value="1" checked> 1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</label>
-                            <label class="radio-label"><input type="radio" name="m4" value="2"> 2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="2"> 2 - ฉันมีอาการเจ็บปวดorรู้สึกไม่สบายตัวเล็กน้อย</label>
                             <label class="radio-label"><input type="radio" name="m4" value="3"> 3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</label>
                             <label class="radio-label"><input type="radio" name="m4" value="4"> 4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</label>
                             <label class="radio-label"><input type="radio" name="m4" value="5"> 5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</label>
@@ -195,7 +202,10 @@
                         </div>
                     </div>
 
-                    <button type="button" class="submit-btn" onclick="handleSubmit()">💾 บันทึกข้อมูลและประมวลผล (Submit)</button>
+                    <div class="btn-panel">
+                        <button type="button" class="submit-btn" onclick="handleSubmit()">💾 บันทึกและวิเคราะห์ข้อมูล (Submit)</button>
+                        <button type="button" class="clear-btn" onclick="handleManualClear()">➕ เพิ่มเคสถัดไป</button>
+                    </div>
                 </form>
             </div>
 
@@ -308,44 +318,69 @@
             eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
             localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
 
+            // เรียกกล่องสรุปแปลผลขึ้นจอแสดงผล
             generateSummaryText(hn, period, code5d, utilityScore, vas);
             updateTable();
             renderMonthlyChart();
 
-            // 🌟 บันทึกข้อมูลและผูกระบบเข้าหน้าสมุดทะเบียนทันทีเมื่อกรอก Baseline 🌟
+            // จัดการซิงค์ข้อมูลนัดหมายเข้าฐานข้อมูลร่วมก้อนเดิม
+            let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
+            let existingPatient = patientSchedules.find(p => p.hn === hn);
+
             if (period === "Baseline" || period.includes("Baseline")) {
-                let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
-                
-                // เคลียร์เคสเก่าออกกรณีพิมพ์ซ้ำ เพื่อป้องกันรายชื่อเบิ้ลคู่ในตาราง
-                patientSchedules = patientSchedules.filter(p => p.hn !== hn);
-                
                 let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
                 let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
                 let d1 = new Date(date); d1.setFullYear(d1.getFullYear() + 1);
 
-                patientSchedules.push({
-                    hn: hn,
-                    baseline: date,
-                    code: code5d,
-                    score: utilityScore,
-                    vas: vas,
-                    m3: d3.toISOString().split('T')[0],
-                    m6: d6.toISOString().split('T')[0],
-                    m1y: d1.toISOString().split('T')[0]
-                });
+                let newRecord = {
+                    hn: hn, baseline: date, code: code5d, score: utilityScore, vas: vas,
+                    m3Date: d3.toISOString().split('T')[0],
+                    m6Date: d6.toISOString().split('T')[0],
+                    m1yDate: d1.toISOString().split('T')[0],
+                    m3Data: null, m6Data: null, m1yData: null
+                };
 
-                localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
-                alert(`บันทึกสำเร็จ! ทำการลงทะเบียนชื่อผู้ป่วย ${hn} เข้าสู่สมุดประวัติและตารางนัดหมายเรียบร้อยแล้วครับ`);
-                
-                document.getElementById('patientHN').value = '';
-                resetRadios();
-                window.location.href = "calculator.html"; // ลิงก์ตรงแบบถูกต้อง
-                return;
+                if (existingPatient) {
+                    existingPatient.baseline = date;
+                    existingPatient.code = code5d;
+                    existingPatient.score = utilityScore;
+                    existingPatient.vas = vas;
+                    existingPatient.m3Date = newRecord.m3Date;
+                    existingPatient.m6Date = newRecord.m6Date;
+                    existingPatient.m1yDate = newRecord.m1yDate;
+                } else {
+                    patientSchedules.push(newRecord);
+                }
+            } else {
+                if (!existingPatient) {
+                    existingPatient = {
+                        hn: hn, baseline: null, code: null, score: null, vas: null,
+                        m3Date: '-', m6Date: '-', m1yDate: '-',
+                        m3Data: null, m6Data: null, m1yData: null
+                    };
+                    patientSchedules.push(existingPatient);
+                }
+
+                let dataObj = { date, code: code5d, score: utilityScore, vas };
+                if (period === "3 เดือน") existingPatient.m3Data = dataObj;
+                else if (period === "6 เดือน") existingPatient.m6Data = dataObj;
+                else if (period === "1 ปี") existingPatient.m1yData = dataObj;
             }
 
-            alert(`บันทึกข้อมูลการติดตามผลรอบ ${period} สำเร็จเรียบร้อยครับ`);
+            localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
+            
+            // 🌟 จุดเปลี่ยนสำคัญ: แจ้งเตือน และเลื่อนสกรอลล์ลงไปให้ก๊อปปี้ข้อมูลทันที ค้างค่าฟอร์มไว้ตามบรีฟ 🌟
+            alert(`🎯 บันทึกข้อมูลเข้าระบบเรียบร้อยแล้วค่ะ!\nคุณพยาบาลสามารถคัดลอกข้อความวิเคราะห์ทางคลินิกด้านล่างฟอร์มได้ทันที และเมื่อเสร็จแล้วให้คลิกปุ่ม "เพิ่มเคสถัดไป" เพื่อเริ่มเคสใหม่ค่ะ`);
+            document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ฟังก์ชันล้างฟอร์มแมนนวลเมื่อคุณพยาบาลก๊อปปี้ข้อความแปลผลเสร็จเรียบร้อยแล้ว
+        function handleManualClear() {
             document.getElementById('patientHN').value = '';
+            document.getElementById('timePeriod').value = 'Baseline';
             resetRadios();
+            document.getElementById('summary-box').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function resetRadios() {
@@ -372,9 +407,9 @@
             let issuesText = codeDetails.length > 0 ? codeDetails.join(", ") : "ไม่มีปัญหารุนแรงในทั้ง 5 ด้าน";
 
             let clinicalAdvice = ""; let alertClass = "";
-            if (score >= 0.75) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ ควบคุมโรคได้ดี"; } 
-            else if (score >= 0.50) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง ควรตรวจสอบเรื่องภาวะคั่งน้ำ"; } 
-            else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตต่ำวิกฤต แนะนำรายงานทีม Case Manager เพื่อประเมินด่วน"; }
+            if (score >= 0.75) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ (Utility Score ≥ 0.75) ตัวโรค CHF ได้รับการควบคุมได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป""; } 
+            else if (score >= 0.50) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย (Utility Score 0.50 - 0.74) เฝ้าระวังภาวะน้ำเกิน เช่น หายใจเหนื่อย นอนราบไม่ได้ ขาบวม น้ำหนักตัวเพิ่ม รวมถึงทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด"; } 
+            else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ต่ำวิกฤต (Utility Score < 0.50) มีอุปสรรคในการดำเนินชีวิตที่รุนแรง มีความเสี่ยงสูงต่อการเกิด CHF แนะนำพบแพทย์ เพื่อประเมินด่วน"; }
 
             content.innerHTML = `
                 <div class="summary-alert-box ${alertClass}">
@@ -444,4 +479,4 @@
         }
     </script>
 </body>
- </html> 
+</html>
