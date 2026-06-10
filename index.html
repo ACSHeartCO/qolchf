@@ -28,7 +28,6 @@
         .patient-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; background-color: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
         @media (max-width: 640px) { .patient-grid { grid-template-columns: 1fr; } }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
-        .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
         .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: white; width: 100%; box-sizing: border-box; }
 
         .q-section-title { font-size: 14px; font-weight: 700; color: #312e81; text-transform: uppercase; margin: 20px 0 12px 0; }
@@ -177,7 +176,7 @@
                             <label class="radio-label"><input type="radio" name="m4" value="1" checked> 1 - ฉันไม่มีอาการเจ็บปวดหรือรู้สึกไม่สบายตัว</label>
                             <label class="radio-label"><input type="radio" name="m4" value="2"> 2 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวเล็กน้อย</label>
                             <label class="radio-label"><input type="radio" name="m4" value="3"> 3 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวปานกลาง</label>
-                            <label class="radio-label"><input type="radio" name="m4" value="4"> 4 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างมาก</label>
+                            <label class="radio-label"><input type="radio" name="m4" value="4"> 4 - ฉันมีอาการเจ็บปวดorรู้สึกไม่สบายตัวอย่างมาก</label>
                             <label class="radio-label"><input type="radio" name="m4" value="5"> 5 - ฉันมีอาการเจ็บปวดหรือรู้สึกไม่สบายตัวอย่างร้ายแรงที่สุด</label>
                         </div>
                     </fieldset>
@@ -203,4 +202,282 @@
 
                     <div class="btn-panel">
                         <button type="button" class="submit-btn" onclick="handleSubmit()">💾 บันทึกและวิเคราะห์ข้อมูล (Submit)</button>
-                        <button type="button" class
+                        <button type="button" class="clear-btn" onclick="handleManualClear()">➕ เพิ่มเคสถัดไป</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="summary-box" class="card hidden">
+                <h3 class="summary-title">📢 ข้อความสรุปผลทางคลินิก (Clinical Summary)</h3>
+                <div id="summary-content"></div>
+            </div>
+        </div>
+
+        <div class="col-right">
+            <div class="card" id="dashboard-section">
+                <h2 class="card-title" style="border:none; padding:0;">📊 จำนวนเคสสะสมในแต่ละเดือน</h2>
+                <div class="chart-wrapper" id="monthlyChart"></div>
+                <div class="chart-legend">
+                    <div><span class="legend-dot cb-base"></span> Baseline</div>
+                    <div><span class="legend-dot cb-3m"></span> 3 เดือน</div>
+                    <div><span class="legend-dot cb-6m"></span> 6 เดือน</div>
+                    <div><span class="legend-dot cb-1y"></span> 1 ปี</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="flex-between">
+                    <h2 class="card-title" style="border:none; padding:0; font-size:16px;">📋 รายการบันทึกเมื่อเร็วๆ นี้</h2>
+                    <div class="table-btn-group">
+                        <button type="button" class="btn-action btn-csv" onclick="exportToCSV()">📥 Export Excel/CSV</button>
+                        <button type="button" class="btn-action btn-del" onclick="clearAllData()">🗑️ ล้างทั้งหมด</button>
+                    </div>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>HN</th>
+                                <th>วันที่</th>
+                                <th>Timeline</th>
+                                <th style="text-align:center;">Utility</th>
+                                <th style="text-align:center;">VAS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eq5dRecords = JSON.parse(localStorage.getItem('eq5dRecords')) || [];
+        const monthNamesTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+        window.onload = function() {
+            document.getElementById('evalDate').value = new Date().toISOString().split('T')[0];
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramHN = urlParams.get('hn');
+            const paramPeriod = urlParams.get('period');
+
+            if (paramHN && paramPeriod) {
+                document.getElementById('patientHN').value = paramHN;
+                document.getElementById('timePeriod').value = paramPeriod;
+                alert(`ดึงข้อมูลอัตโนมัติสำเร็จ: ผู้ป่วย ${paramHN} กำลังทำประเมินรอบ [${paramPeriod}]`);
+            }
+
+            updateTable();
+            renderMonthlyChart();
+        };
+
+        function calculateThailandUtilityScore(code) {
+            if (code === "11111") return 1.000;
+            let score = 1.000 - 0.2032; 
+            const weights = {
+                m1: [0, 0, 0.0435, 0.0869, 0.1738, 0.2608],
+                m2: [0, 0, 0.0398, 0.0796, 0.1592, 0.2388],
+                m3: [0, 0, 0.0384, 0.0768, 0.1536, 0.2304],
+                m4: [0, 0, 0.0512, 0.1024, 0.2048, 0.3072],
+                m5: [0, 0, 0.0461, 0.0922, 0.1844, 0.2766]
+            };
+            score -= weights.m1[parseInt(code[0])];
+            score -= weights.m2[parseInt(code[1])];
+            score -= weights.m3[parseInt(code[2])];
+            score -= weights.m4[parseInt(code[3])];
+            score -= weights.m5[parseInt(code[4])];
+            if (score < -0.2) score = -0.2;
+            return parseFloat(score.toFixed(3));
+        }
+
+        function getRadioValue(name) {
+            const radios = document.getElementsByName(name);
+            for (let i = 0; i < radios.length; i++) {
+                if (radios[i].checked) return radios[i].value;
+            }
+            return "1";
+        }
+
+        function handleSubmit() {
+            const hn = document.getElementById('patientHN').value.trim();
+            const date = document.getElementById('evalDate').value;
+            const period = document.getElementById('timePeriod').value;
+            const vas = parseInt(document.getElementById('eqVas').value);
+
+            if(!hn || !date) {
+                alert("กรุณากรอกข้อมูลให้ครบถ้วนครับ");
+                return;
+            }
+
+            const code5d = "" + getRadioValue('m1') + getRadioValue('m2') + getRadioValue('m3') + getRadioValue('m4') + getRadioValue('m5');
+            const utilityScore = calculateThailandUtilityScore(code5d);
+
+            eq5dRecords.push({ hn, date, period, code: code5d, score: utilityScore, vas });
+            localStorage.setItem('eq5dRecords', JSON.stringify(eq5dRecords));
+
+            generateSummaryText(hn, period, code5d, utilityScore, vas);
+            updateTable();
+            renderMonthlyChart();
+
+            let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
+            let existingPatient = patientSchedules.find(p => p.hn === hn);
+
+            // 🌟 ซ่อมแซมดักทุกเงื่อนไข: ยอมรับและปลดล็อกปุ่ม Submit ให้บันทึกผ่านได้หมดทุกรอบเดือน 🌟
+            if (period === "Baseline" || period.includes("แรกรับ")) {
+                let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
+                let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
+                let d1 = new Date(date); d1.setFullYear(d1.getFullYear() + 1);
+
+                let newRecord = {
+                    hn: hn, baseline: date, code: code5d, score: utilityScore, vas: vas,
+                    m3Date: d3.toISOString().split('T')[0],
+                    m6Date: d6.toISOString().split('T')[0],
+                    m1yDate: d1.toISOString().split('T')[0],
+                    m3Data: null, m6Data: null, m1yData: null
+                };
+
+                if (existingPatient) {
+                    existingPatient.baseline = date;
+                    existingPatient.code = code5d;
+                    existingPatient.score = utilityScore;
+                    existingPatient.vas = vas;
+                    existingPatient.m3Date = newRecord.m3Date;
+                    existingPatient.m6Date = newRecord.m6Date;
+                    existingPatient.m1yDate = newRecord.m1yDate;
+                } else {
+                    patientSchedules.push(newRecord);
+                }
+                alert(`🎯 บันทึกสำเร็จ!\nลงทะเบียนผู้ป่วย ${hn} (รอบ Baseline) เรียบร้อยแล้วค่ะ คุณพยาบาลสามารถก๊อปปี้สรุปผลทางคลินิกด้านล่างได้เลยค่ะ`);
+            } else {
+                if (!existingPatient) {
+                    existingPatient = {
+                        hn: hn, baseline: null, code: null, score: null, vas: null,
+                        m3Date: '-', m6Date: '-', m1yDate: '-',
+                        m3Data: null, m6Data: null, m1yData: null
+                    };
+                    patientSchedules.push(existingPatient);
+                }
+
+                let dataObj = { date: date, code: code5d, score: utilityScore, vas: vas };
+                
+                if (period === "3 เดือน" || period.includes("3")) {
+                    existingPatient.m3Data = dataObj;
+                } else if (period === "6 เดือน" || period.includes("6")) {
+                    existingPatient.m6Data = dataObj;
+                } else if (period === "1 ปี" || period.includes("1")) {
+                    existingPatient.m1yData = dataObj;
+                }
+
+                alert(`🎯 บันทึกสำเร็จ!\nทำการอัปเดตและบันทึกประวัติผลประเมินช่วง [${period}] ของผู้ป่วย ${hn} ลงสู่สมุดทะเบียนเรียบร้อยแล้วค่ะ`);
+            }
+
+            localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
+            document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleManualClear() {
+            document.getElementById('patientHN').value = '';
+            document.getElementById('timePeriod').value = 'Baseline';
+            resetRadios();
+            document.getElementById('summary-box').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetRadios() {
+            const names = ['m1', 'm2', 'm3', 'm4', 'm5'];
+            names.forEach(name => {
+                const radios = document.getElementsByName(name);
+                for(let i=0; i<radios.length; i++) { radios[i].checked = (radios[i].value === "1"); }
+            });
+            document.getElementById('eqVas').value = 70;
+            document.getElementById('vasVal').innerText = 70;
+        }
+
+        function generateSummaryText(hn, period, code, score, vas) {
+            const box = document.getElementById('summary-box');
+            const content = document.getElementById('summary-content');
+            box.classList.remove('hidden');
+
+            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "ความวิตกกังวล/ซึมเศร้า"];
+            let codeDetails = [];
+            for (let i = 0; i < 5; i++) {
+                let lvl = code[i];
+                if (lvl > 1) codeDetails.push(`${textLabels[i]} (ระดับ ${lvl})`);
+            }
+            let issuesText = codeDetails.length > 0 ? codeDetails.join(", ") : "ไม่มีปัญหารุนแรงในทั้ง 5 ด้าน";
+
+            let clinicalAdvice = ""; let alertClass = "";
+            if (score >= 0.75) { alertClass = "sab-green"; clinicalAdvice = "❤️ <strong>การวิเคราะห์ทางคลินิก:</strong> ดัชนีคุณภาพชีวิตอยู่ในเกณฑ์ดีคงที่ ควบคุมโรคได้ดี แนะนำให้รักษามาตรฐานการทานยาและพฤติกรรมดูแลตนเองต่อไป"; } 
+            else if (score >= 0.50) { alertClass = "sab-amber"; clinicalAdvice = "⚠️ <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตอยู่ในเกณฑ์ปานกลาง-เริ่มถดถอย ควรตรวจสอบอาการคั่งน้ำ น้ำหนักตัว และทบทวนความถูกต้องในการรับประทานยาอย่างใกล้ชิด"; } 
+            else { alertClass = "sab-rose"; clinicalAdvice = "🚨 <strong>การวิเคราะห์ทางคลินิก:</strong> คุณภาพชีวิตต่ำวิกฤต มีความเสี่ยงสูงต่อการเกิด CHF Exacerbation แนะนำรายงานทีมพยาบาล Case Manager เพื่อประเมินด่วน"; }
+
+            content.innerHTML = `
+                <div class="summary-alert-box ${alertClass}">
+                    <div><strong>ผู้ป่วย HN:</strong> ${hn} | <strong>ระยะติดตาม:</strong> ${period}</div>
+                    <div><strong>ผลลัพธ์รหัส EQ-5D:</strong> <span class="code-pill">${code}</span> | <strong>EQ-VAS:</strong> ${vas}/100</div>
+                    <div><strong>Thailand Utility Score:</strong> <strong>${score.toFixed(3)}</strong></div>
+                    <div style="font-size:11px; margin-top:4px; opacity:0.85;"><strong>มิติที่มีปัญหา:</strong> ${issuesText}</div>
+                    <hr style="opacity:0.15; margin:8px 0;">
+                    <div>${clinicalAdvice}</div>
+                </div>`;
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('recordsTable');
+            tbody.innerHTML = '';
+            if (eq5dRecords.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="empty-row">ยังไม่มีข้อมูลบันทึกในขณะนี้</td></tr>'; return; }
+            [...eq5dRecords].reverse().forEach(rec => {
+                let pClass = "tb-base";
+                if(rec.period === "3 เดือน") pClass = "tb-3m"; else if(rec.period === "6 เดือน") pClass = "tb-6m"; else if(rec.period === "1 ปี") pClass = "tb-1y";
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><strong>${rec.hn}</strong></td><td>${rec.date}</td><td><span class="t-badge ${pClass}">${rec.period}</span></td><td class="tbl-utility">${parseFloat(rec.score).toFixed(3)}</td><td style="text-align:center; font-weight:600;">${rec.vas}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderMonthlyChart() {
+            const container = document.getElementById('monthlyChart');
+            container.innerHTML = '';
+            let chartDataStructure = { 'Baseline': Array(12).fill(0), '3 เดือน': Array(12).fill(0), '6 เดือน': Array(12).fill(0), '1 ปี': Array(12).fill(0) };
+            eq5dRecords.forEach(rec => {
+                if (rec.date) {
+                    const dateParts = rec.date.split('-');
+                    if(dateParts.length >= 2) {
+                        const monthIndex = parseInt(dateParts[1], 10) - 1;
+                        if(monthIndex >= 0 && monthIndex <= 11 && chartDataStructure[rec.period]) { chartDataStructure[rec.period][monthIndex]++; }
+                    }
+                }
+            });
+            let maxVal = 1;
+            for(let p in chartDataStructure) { chartDataStructure[p].forEach(v => { if(v > maxVal) maxVal = v; }); }
+            for(let i=0; i<12; i++) {
+                let vBase = chartDataStructure['Baseline'][i]; let v3m = chartDataStructure['3 เดือน'][i]; let v6m = chartDataStructure['6 เดือน'][i]; let v1y = chartDataStructure['1 ปี'][i];
+                let hBase = Math.max(2, (vBase / maxVal) * 190); let h3m = Math.max(2, (v3m / maxVal) * 190); let h6m = Math.max(2, (v6m / maxVal) * 190); let h1y = Math.max(2, (v1y / maxVal) * 190);
+                let col = document.createElement('div'); col.className = 'chart-month-col';
+                col.innerHTML = `<div class="chart-bars-container"><div class="chart-bar cb-base" style="height:${hBase}px" data-tip="Base: ${vBase}"></div><div class="chart-bar cb-3m" style="height:${h3m}px" data-tip="3M: ${v3m}"></div><div class="chart-bar cb-6m" style="height:${h6m}px" data-tip="6M: ${v6m}"></div><div class="chart-bar cb-1y" style="height:${h1y}px" data-tip="1Y: ${v1y}"></div></div><div class="chart-label">${monthNamesTH[i]}</div>`;
+                container.appendChild(col);
+            }
+        }
+
+        function exportToCSV() {
+            if(eq5dRecords.length === 0) { alert("ไม่มีข้อมูลสำหรับการส่งออกครับ"); return; }
+            let csvContent = "\uFEFFHN,วันที่ประเมิน,ช่วงเวลา,EQ-5D Code,Thailand Utility Score,EQ-VAS Score\n";
+            eq5dRecords.forEach(r => { csvContent += `${r.hn},${r.date},${r.period},${r.code},${parseFloat(r.score).toFixed(3)},${r.vas}\n`; });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `CHF_EQ5D5L_MonthlyReport.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function clearAllData() {
+            if(confirm("คุณต้องการล้างข้อมูลประวัติที่เคยบันทึกไว้ทั้งหมดใช่หรือไม่?")) {
+                eq5dRecords = []; localStorage.removeItem('eq5dRecords');
+                localStorage.removeItem('patientSchedules');
+                document.getElementById('summary-box').classList.add('hidden');
+                updateTable(); renderMonthlyChart(); alert("ล้างข้อมูลเรียบร้อยแล้วครับ");
+            }
+        }
+    </script>
+</body>
+</html>
