@@ -324,6 +324,7 @@
             let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
             let existingPatient = patientSchedules.find(p => p.hn === hn);
 
+            // 🌟 แก้ไขจุดบกพร่อง: ผูกข้อมูลและส่งค่ากลับสมุดทะเบียนให้รอบ 3M, 6M, 1Y ทำงานได้จริง 🌟
             if (period === "Baseline") {
                 let d3 = new Date(date); d3.setMonth(d3.getMonth() + 3);
                 let d6 = new Date(date); d6.setMonth(d6.getMonth() + 6);
@@ -348,7 +349,7 @@
                 } else {
                     patientSchedules.push(newRecord);
                 }
-                alert(`🎯 บันทึกสำเร็จ!\nทำการลงทะเบียนชื่อผู้ป่วย ${hn} (รอบ Baseline) เรียบร้อยแล้วครับ`);
+                alert(`🎯 บันทึกสำเร็จ!\nลงทะเบียนผู้ป่วย ${hn} (รอบ Baseline) สู่ตารางนัดหมายเรียบร้อยแล้วค่ะ`);
             } else {
                 if (!existingPatient) {
                     existingPatient = {
@@ -364,7 +365,7 @@
                 else if (period === "6 เดือน") existingPatient.m6Data = dataObj;
                 else if (period === "1 ปี") existingPatient.m1yData = dataObj;
 
-                alert(`🎯 บันทึกสำเร็จ!\nอัปเดตประวัติการติดตามผลช่วง [${period}] ของผู้ป่วย ${hn} เรียบร้อยแล้วครับ`);
+                alert(`🎯 บันทึกสำเร็จ!\nอัปเดตประวัติการติดตามผลช่วง [${period}] ของผู้ป่วย ${hn} ลงสมุดทะเบียนเรียบร้อยแล้วค่ะ`);
             }
 
             localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
@@ -394,7 +395,7 @@
             const content = document.getElementById('summary-content');
             box.classList.remove('hidden');
 
-            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "วิตกกังวล/ซึมเศr้า"];
+            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด/ไม่สบายตัว", "วิตกกังวล/ซึมเศร้า"];
             let codeDetails = [];
             for (let i = 0; i < 5; i++) {
                 let lvl = code[i];
