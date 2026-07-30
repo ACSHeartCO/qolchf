@@ -10,8 +10,11 @@
         .header-wrap { max-width: 1250px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; }
         .header-title p { font-size: 12px; margin: 4px 0 0 0; color: #c7d2fe; }
+        .header-nav { display: flex; gap: 8px; align-items: center; }
         .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; }
         .nav-btn:hover { background-color: #6366f1; }
+        .btn-logout { background-color: #ef4444; color: white; border: none; cursor: pointer; }
+        .btn-logout:hover { background-color: #dc2626; }
 
         .main-container { max-width: 1250px; margin: 30px auto; padding: 0 20px; }
         .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -68,7 +71,9 @@
                 <p>สมุดทะเบียนผู้ป่วย ค้นหาตารางนัดหมาย และเปรียบเทียบผลลัพธ์คุณภาพชีวิต (STEMI, PPM, EPS+RFA, CHF)</p>
             </div>
             <div class="header-nav">
+                <span id="userBadge" style="font-size:12px; background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:20px;">👤 <span id="currentUserName">-</span></span>
                 <a href="index.html" class="nav-btn">📝 กลับหน้าประเมินหลัก (EQ-5D-5L)</a>
+                <button type="button" class="nav-btn btn-logout" onclick="handleLogout()">🚪 ออกจากระบบ</button>
             </div>
         </div>
     </header>
@@ -118,8 +123,25 @@
         let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
 
         window.onload = function() {
+            checkAuth();
             renderSchedulerTable();
         };
+
+        function checkAuth() {
+            const loggedUser = sessionStorage.getItem('cardioLoggedUser');
+            if (loggedUser) {
+                document.getElementById('currentUserName').innerText = loggedUser;
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+                sessionStorage.removeItem('cardioLoggedUser');
+                window.location.href = 'index.html';
+            }
+        }
 
         function formatDateTH(dateString) {
             if(!dateString || dateString === "-") return "-";
@@ -211,17 +233,14 @@
 
             let filteredList = patientSchedules;
 
-            // กรองตามกลุ่มโรค
             if(filterValue !== 'ALL') {
                 filteredList = filteredList.filter(p => (p.diag || 'CHF') === filterValue);
             }
 
-            // กรองเฉพาะเคสที่ต้องประเมิน
             if(filterStatus === 'DUE') {
                 filteredList = filteredList.filter(p => isPatientDue(p));
             }
 
-            // กรองตามคำค้นหา HN
             if(searchKeyword !== '') {
                 filteredList = filteredList.filter(p => p.hn.toLowerCase().includes(searchKeyword));
             }
