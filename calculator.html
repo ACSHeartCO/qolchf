@@ -50,9 +50,9 @@
 
         .followup-date { font-weight: 700; color: #1e293b; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
         .btn-go { display: inline-block; padding: 3px 8px; font-size: 10.5px; font-weight: 600; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
-        .bg-3m { background-color: #0ea5e9; } .bg-3m:hover { background-color: #0284c7; }
-        .bg-6m { background-color: #f59e0b; color: white; } .bg-6m:hover { background-color: #d97706; }
-        .bg-1y { background-color: #a855f7; } .bg-1y:hover { background-color: #9333ea; }
+        .bg-3m { background-color: #0ea5e9; }
+        .bg-6m { background-color: #f59e0b; color: white; }
+        .bg-1y { background-color: #a855f7; }
         
         .btn-del { background-color: #ef4444; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-del:hover { background-color: #dc2626; }
@@ -64,7 +64,7 @@
     <header>
         <div class="header-wrap">
             <div class="header-title">
-                <h1>📋 Cardiovascular Patient Registry & Follow-up Scheduler</h1>
+                <h1>📋 Cardiovascular Patient Registry & Scheduler</h1>
                 <p>สมุดทะเบียนผู้ป่วย ค้นหาตารางนัดหมาย และเปรียบเทียบผลลัพธ์คุณภาพชีวิต (STEMI, PPM, EPS+RFA, CHF)</p>
             </div>
             <div class="header-nav">
@@ -88,6 +88,10 @@
                         <option value="PPM">PPM</option>
                         <option value="EPS+RFA">EPS+RFA</option>
                         <option value="CHF">CHF</option>
+                    </select>
+                    <select id="filterStatus" class="filter-select" onchange="renderSchedulerTable()">
+                        <option value="ALL">แสดงเคสทั้งหมด</option>
+                        <option value="DUE">🔔 เฉพาะเคสที่ถึงกำหนด/ค้างประเมิน</option>
                     </select>
                 </div>
             </div>
@@ -188,9 +192,20 @@
             `;
         }
 
+        function isPatientDue(p) {
+            const today = new Date(); today.setHours(0,0,0,0);
+            
+            let check3m = (p.m3Date && p.m3Date !== '-' && !p.m3Data && new Date(p.m3Date) <= today);
+            let check6m = (p.m6Date && p.m6Date !== '-' && !p.m6Data && new Date(p.m6Date) <= today);
+            let check1y = (p.m1yDate && p.m1yDate !== '-' && !p.m1yData && new Date(p.m1yDate) <= today);
+
+            return check3m || check6m || check1y;
+        }
+
         function renderSchedulerTable() {
             const tbody = document.getElementById('schedulerTable');
             const filterValue = document.getElementById('filterDiag').value;
+            const filterStatus = document.getElementById('filterStatus').value;
             const searchKeyword = document.getElementById('searchHN').value.trim().toLowerCase();
             tbody.innerHTML = '';
 
@@ -199,6 +214,11 @@
             // กรองตามกลุ่มโรค
             if(filterValue !== 'ALL') {
                 filteredList = filteredList.filter(p => (p.diag || 'CHF') === filterValue);
+            }
+
+            // กรองเฉพาะเคสที่ต้องประเมิน
+            if(filterStatus === 'DUE') {
+                filteredList = filteredList.filter(p => isPatientDue(p));
             }
 
             // กรองตามคำค้นหา HN
