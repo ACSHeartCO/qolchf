@@ -6,15 +6,31 @@
     <title>Cardio QOL Tracking & Notification System</title>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
+        
+        /* 🔒 Login Modal Style */
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-card { background: white; border-radius: 20px; padding: 32px; width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; text-align: center; }
+        .login-header { margin-bottom: 24px; }
+        .login-header h2 { font-size: 22px; font-weight: 700; color: #1e3a8a; margin: 8px 0 4px 0; }
+        .login-header p { font-size: 13px; color: #64748b; margin: 0; }
+        .login-form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+        .login-form label { font-size: 13px; font-weight: 600; color: #475569; }
+        .login-form input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .login-btn { background-color: #4338ca; color: white; border: none; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: 0.2s; margin-top: 8px; }
+        .login-btn:hover { background-color: #3730a3; }
+        .login-error { color: #ef4444; font-size: 12px; font-weight: 600; text-align: center; display: none; margin-top: 8px; }
+
         header { background-color: #4338ca; color: white; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .header-wrap { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .header-title p { font-size: 12px; margin: 4px 0 0 0; color: #c7d2fe; }
-        .header-nav { display: flex; gap: 8px; }
+        .header-nav { display: flex; gap: 8px; align-items: center; }
         .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; cursor: pointer; border: none; }
         .nav-btn:hover { background-color: #6366f1; }
         .nav-btn-green { background-color: #059669; }
         .nav-btn-green:hover { background-color: #10b981; }
+        .btn-logout { background-color: #ef4444; color: white; }
+        .btn-logout:hover { background-color: #dc2626; }
 
         .main-container { max-width: 1100px; margin: 24px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
         @media (max-width: 1024px) { .main-container { grid-template-columns: 1fr; } .col-left, .col-right, .col-full { grid-column: span 12 !important; } }
@@ -22,7 +38,6 @@
         .col-left { grid-column: span 7; display: flex; flex-direction: column; gap: 24px; }
         .col-right { grid-column: span 5; display: flex; flex-direction: column; gap: 24px; }
 
-        /* Banner Notification Style */
         .alert-banner { background: white; border: 2px solid #3b82f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); }
         .alert-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px; }
         .alert-title { font-size: 16px; font-weight: 700; color: #1e3a8a; display: flex; align-items: center; gap: 8px; }
@@ -68,7 +83,6 @@
         .table-btn-group { display: flex; gap: 6px; }
         .btn-action { border: none; padding: 6px 12px; font-size: 12px; font-weight: 500; border-radius: 6px; cursor: pointer; }
         .btn-csv { background: #059669; color: white; }
-        .btn-del { background: #ef4444; color: white; }
 
         .chart-wrapper { height: 240px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; margin-top: 16px; }
         .chart-month-col { width: 8%; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
@@ -111,6 +125,29 @@
 </head>
 <body>
 
+    <!-- 🔒 หน้าต่าง Login Popup -->
+    <div id="loginModal" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <span style="font-size: 40px;">🩺</span>
+                <h2>Cardio QOL System</h2>
+                <p>กรุณาเข้าสู่ระบบเพื่อใช้งานแอปพลิเคชัน</p>
+            </div>
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div>
+                    <label>Username (ชื่อผู้ใช้งาน)</label>
+                    <input type="text" id="loginUser" placeholder="ระบุ username..." required autocomplete="off">
+                </div>
+                <div>
+                    <label>Password (รหัสผ่าน)</label>
+                    <input type="password" id="loginPass" placeholder="ระบุรหัสผ่าน..." required>
+                </div>
+                <div id="loginErrorMsg" class="login-error">❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+                <button type="submit" class="login-btn">🔓 เข้าสู่ระบบ (Login)</button>
+            </form>
+        </div>
+    </div>
+
     <header>
         <div class="header-wrap">
             <div class="header-title">
@@ -118,13 +155,14 @@
                 <p>ระบบบันทึกและจำแนกกลุ่มโรค (STEMI, PPM, EPS+RFA, CHF) พร้อมระบบแจ้งเตือนนัดประเมินประจำวัน</p>
             </div>
             <div class="header-nav">
+                <span id="userBadge" style="font-size:12px; background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:20px;">👤 <span id="currentUserName">-</span></span>
                 <a href="calculator.html" class="nav-btn nav-btn-green">📅 สมุดทะเบียนและตารางนัด</a>
+                <button type="button" class="nav-btn btn-logout" onclick="handleLogout()">🚪 ออกจากระบบ</button>
             </div>
         </div>
     </header>
 
     <div class="main-container">
-        <!-- 🔔 กล่องแจ้งเตือนรายการที่ถึงกำหนดประเมินประจำวัน -->
         <div class="col-full">
             <div class="alert-banner">
                 <div class="alert-header">
@@ -270,7 +308,6 @@
                     <h2 class="card-title" style="border:none; padding:0; font-size:16px;">📋 รายการบันทึกเมื่อเร็วๆ นี้</h2>
                     <div class="table-btn-group">
                         <button type="button" class="btn-action btn-csv" onclick="exportToCSV()">📥 Export CSV</button>
-                        <button type="button" class="btn-action btn-del" onclick="clearAllData()">🗑️ ล้างทั้งหมด</button>
                     </div>
                 </div>
                 <div class="table-scroll">
@@ -292,11 +329,18 @@
     </div>
 
     <script>
+        const VALID_USERS = {
+            'admin': 'cardio2026',
+            'nurse': 'bhh1234'
+        };
+
         let eq5dRecords = JSON.parse(localStorage.getItem('eq5dRecords')) || [];
         let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
         const monthNamesTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
         window.onload = function() {
+            checkAuth();
+            
             const todayStr = new Date().toISOString().split('T')[0];
             document.getElementById('evalDate').value = todayStr;
             document.getElementById('todayDateTxt').innerText = "วันนี้: " + formatDateTH(todayStr);
@@ -321,6 +365,38 @@
             checkDailyDueAlerts();
         };
 
+        function checkAuth() {
+            const loggedUser = sessionStorage.getItem('cardioLoggedUser');
+            if (loggedUser) {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('currentUserName').innerText = loggedUser;
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUser').value.trim();
+            const p = document.getElementById('loginPass').value.trim();
+            const err = document.getElementById('loginErrorMsg');
+
+            if (VALID_USERS[u] && VALID_USERS[u] === p) {
+                sessionStorage.setItem('cardioLoggedUser', u);
+                err.style.display = 'none';
+                checkAuth();
+            } else {
+                err.style.display = 'block';
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+                sessionStorage.removeItem('cardioLoggedUser');
+                location.reload();
+            }
+        }
+
         function formatDateTH(dateString) {
             if(!dateString || dateString === "-") return "-";
             const date = new Date(dateString);
@@ -339,26 +415,17 @@
 
             patientSchedules.forEach(p => {
                 const diag = p.diag || 'CHF';
-                // ตรวจรอบ 3 เดือน
                 if (p.m3Date && p.m3Date !== '-' && !p.m3Data) {
                     let d = new Date(p.m3Date); d.setHours(0,0,0,0);
-                    if (d <= today) {
-                        dueAlerts.push({ hn: p.hn, diag: diag, period: '3 เดือน', date: p.m3Date, isOverdue: d < today });
-                    }
+                    if (d <= today) { dueAlerts.push({ hn: p.hn, diag: diag, period: '3 เดือน', date: p.m3Date, isOverdue: d < today }); }
                 }
-                // ตรวจรอบ 6 เดือน
                 if (p.m6Date && p.m6Date !== '-' && !p.m6Data) {
                     let d = new Date(p.m6Date); d.setHours(0,0,0,0);
-                    if (d <= today) {
-                        dueAlerts.push({ hn: p.hn, diag: diag, period: '6 เดือน', date: p.m6Date, isOverdue: d < today });
-                    }
+                    if (d <= today) { dueAlerts.push({ hn: p.hn, diag: diag, period: '6 เดือน', date: p.m6Date, isOverdue: d < today }); }
                 }
-                // ตรวจรอบ 1 ปี
                 if (p.m1yDate && p.m1yDate !== '-' && !p.m1yData) {
                     let d = new Date(p.m1yDate); d.setHours(0,0,0,0);
-                    if (d <= today) {
-                        dueAlerts.push({ hn: p.hn, diag: diag, period: '1 ปี', date: p.m1yDate, isOverdue: d < today });
-                    }
+                    if (d <= today) { dueAlerts.push({ hn: p.hn, diag: diag, period: '1 ปี', date: p.m1yDate, isOverdue: d < today }); }
                 }
             });
 
@@ -475,7 +542,7 @@
             }
 
             localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
-            checkDailyDueAlerts(); // อัปเดตรายการแจ้งเตือนสดทันทีหลังบันทึก
+            checkDailyDueAlerts();
             alert(`🎯 บันทึกสำเร็จ!\nเก็บข้อมูลผู้ป่วย ${hn} (${diag}) รอบ [${period}] เรียบร้อยแล้วค่ะ`);
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
         }
@@ -577,15 +644,6 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `Cardio_EQ5D5L_MonthlyReport.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
-
-        function clearAllData() {
-            if(confirm("คุณต้องการล้างข้อมูลประวัติที่เคยบันทึกไว้ทั้งหมดใช่หรือไม่?")) {
-                eq5dRecords = []; localStorage.removeItem('eq5dRecords');
-                patientSchedules = []; localStorage.removeItem('patientSchedules');
-                document.getElementById('summary-box').classList.add('hidden');
-                updateTable(); renderMonthlyChart(); checkDailyDueAlerts(); alert("ล้างข้อมูลเรียบร้อยแล้วครับ");
-            }
         }
     </script>
 </body>
