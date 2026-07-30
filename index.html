@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cardiovascular Disease EQ-5D-5L Tracking System</title>
+    <title>Cardio QOL Tracking & Notification System</title>
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
         header { background-color: #4338ca; color: white; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
@@ -16,10 +16,23 @@
         .nav-btn-green { background-color: #059669; }
         .nav-btn-green:hover { background-color: #10b981; }
 
-        .main-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 30px; }
-        @media (max-width: 1024px) { .main-container { grid-template-columns: 1fr; } .col-left, .col-right { grid-column: span 12 !important; } }
+        .main-container { max-width: 1100px; margin: 24px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+        @media (max-width: 1024px) { .main-container { grid-template-columns: 1fr; } .col-left, .col-right, .col-full { grid-column: span 12 !important; } }
+        .col-full { grid-column: span 12; }
         .col-left { grid-column: span 7; display: flex; flex-direction: column; gap: 24px; }
         .col-right { grid-column: span 5; display: flex; flex-direction: column; gap: 24px; }
+
+        /* Banner Notification Style */
+        .alert-banner { background: white; border: 2px solid #3b82f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); }
+        .alert-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px; }
+        .alert-title { font-size: 16px; font-weight: 700; color: #1e3a8a; display: flex; align-items: center; gap: 8px; }
+        .alert-badge { background-color: #ef4444; color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+        .alert-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; }
+        .alert-item { display: flex; justify-content: space-between; align-items: center; background-color: #f8fafc; padding: 10px 14px; border-radius: 10px; border-left: 4px solid #f59e0b; }
+        .alert-item.overdue { border-left-color: #ef4444; background-color: #fef2f2; }
+        .alert-info { font-size: 13px; color: #334155; }
+        .btn-quick-act { background-color: #4338ca; color: white; border: none; padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; }
+        .btn-quick-act:hover { background-color: #3730a3; }
 
         .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .card-title { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
@@ -93,6 +106,7 @@
         .dp-rfa { background-color: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
         .dp-chf { background-color: #f0f9ff; color: #075985; border: 1px solid #bae6fd; }
         .empty-row { text-align: center; color: #94a3b8; padding: 24px; font-style: italic; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -101,7 +115,7 @@
         <div class="header-wrap">
             <div class="header-title">
                 <h1>🩺 Cardio QOL Tracking System</h1>
-                <p>ระบบบันทึกและจำแนกกลุ่มโรค (STEMI, PPM, EPS+RFA, CHF) พร้อมติดตามผล EQ-5D-5L</p>
+                <p>ระบบบันทึกและจำแนกกลุ่มโรค (STEMI, PPM, EPS+RFA, CHF) พร้อมระบบแจ้งเตือนนัดประเมินประจำวัน</p>
             </div>
             <div class="header-nav">
                 <a href="calculator.html" class="nav-btn nav-btn-green">📅 สมุดทะเบียนและตารางนัด</a>
@@ -110,6 +124,22 @@
     </header>
 
     <div class="main-container">
+        <!-- 🔔 กล่องแจ้งเตือนรายการที่ถึงกำหนดประเมินประจำวัน -->
+        <div class="col-full">
+            <div class="alert-banner">
+                <div class="alert-header">
+                    <div class="alert-title">
+                        <span>🔔 รายการแจ้งเตือนเคสถึงกำหนดประเมินติดตามผล (ประจำวัน)</span>
+                        <span id="dueAlertBadge" class="alert-badge">0 เคส</span>
+                    </div>
+                    <span style="font-size:12px; color:#64748b;" id="todayDateTxt"></span>
+                </div>
+                <div class="alert-list" id="dailyAlertList">
+                    <div style="font-size:13px; color:#94a3b8; text-align:center; padding:10px;">✨ ไม่มีเคสค้างประเมินในวันนี้ค่ะ</div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-left" id="assessment-section">
             <div class="card">
                 <h2 class="card-title">📝 บันทึกแบบประเมินคุณภาพชีวิต (EQ-5D-5L)</h2>
@@ -263,10 +293,13 @@
 
     <script>
         let eq5dRecords = JSON.parse(localStorage.getItem('eq5dRecords')) || [];
+        let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
         const monthNamesTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
         window.onload = function() {
-            document.getElementById('evalDate').value = new Date().toISOString().split('T')[0];
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('evalDate').value = todayStr;
+            document.getElementById('todayDateTxt').innerText = "วันนี้: " + formatDateTH(todayStr);
             
             const urlParams = new URLSearchParams(window.location.search);
             const paramHN = urlParams.get('hn');
@@ -285,7 +318,77 @@
 
             updateTable();
             renderMonthlyChart();
+            checkDailyDueAlerts();
         };
+
+        function formatDateTH(dateString) {
+            if(!dateString || dateString === "-") return "-";
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('th-TH', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+        }
+
+        function checkDailyDueAlerts() {
+            const alertListContainer = document.getElementById('dailyAlertList');
+            const badge = document.getElementById('dueAlertBadge');
+            alertListContainer.innerHTML = '';
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            let dueAlerts = [];
+
+            patientSchedules.forEach(p => {
+                const diag = p.diag || 'CHF';
+                // ตรวจรอบ 3 เดือน
+                if (p.m3Date && p.m3Date !== '-' && !p.m3Data) {
+                    let d = new Date(p.m3Date); d.setHours(0,0,0,0);
+                    if (d <= today) {
+                        dueAlerts.push({ hn: p.hn, diag: diag, period: '3 เดือน', date: p.m3Date, isOverdue: d < today });
+                    }
+                }
+                // ตรวจรอบ 6 เดือน
+                if (p.m6Date && p.m6Date !== '-' && !p.m6Data) {
+                    let d = new Date(p.m6Date); d.setHours(0,0,0,0);
+                    if (d <= today) {
+                        dueAlerts.push({ hn: p.hn, diag: diag, period: '6 เดือน', date: p.m6Date, isOverdue: d < today });
+                    }
+                }
+                // ตรวจรอบ 1 ปี
+                if (p.m1yDate && p.m1yDate !== '-' && !p.m1yData) {
+                    let d = new Date(p.m1yDate); d.setHours(0,0,0,0);
+                    if (d <= today) {
+                        dueAlerts.push({ hn: p.hn, diag: diag, period: '1 ปี', date: p.m1yDate, isOverdue: d < today });
+                    }
+                }
+            });
+
+            badge.innerText = `${dueAlerts.length} เคส`;
+
+            if (dueAlerts.length === 0) {
+                alertListContainer.innerHTML = '<div style="font-size:13px; color:#059669; text-align:center; padding:10px;">✨ ไม่มีเคสค้างประเมินในขณะนี้ค่ะ</div>';
+                return;
+            }
+
+            dueAlerts.forEach(item => {
+                let statusText = item.isOverdue ? `🚨 เกินกำหนด (${formatDateTH(item.date)})` : `⏳ กำหนดนัดวันนี้ (${formatDateTH(item.date)})`;
+                let div = document.createElement('div');
+                div.className = `alert-item ${item.isOverdue ? 'overdue' : ''}`;
+                div.innerHTML = `
+                    <div class="alert-info">
+                        <strong>HN ${item.hn}</strong> <span class="diag-pill dp-${item.diag.toLowerCase().replace('+','')}">${item.diag}</span> - ครบกำหนด <strong>[${item.period}]</strong> (${statusText})
+                    </div>
+                    <button type="button" class="btn-quick-act" onclick="quickFillForm('${item.hn}', '${item.diag}', '${item.period}')">📝 ประเมินเคสนี้</button>
+                `;
+                alertListContainer.appendChild(div);
+            });
+        }
+
+        function quickFillForm(hn, diag, period) {
+            document.getElementById('patientHN').value = hn;
+            document.getElementById('diagnosisGroup').value = diag;
+            document.getElementById('timePeriod').value = period;
+            document.getElementById('assessment-section').scrollIntoView({ behavior: 'smooth' });
+        }
 
         function calculateSimpleScore(code) {
             if (code === "11111") return 1.000;
@@ -334,9 +437,7 @@
             updateTable();
             renderMonthlyChart();
 
-            let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
             let pIndex = patientSchedules.findIndex(item => item.hn === hn);
-
             let scorePayload = { date: date, code: code5d, score: utilityScore, vas: vas };
 
             if (pIndex === -1) {
@@ -358,7 +459,7 @@
 
                 patientSchedules.push(newObj);
             } else {
-                patientSchedules[pIndex].diag = diag; // อัปเดตกลุ่มโรค
+                patientSchedules[pIndex].diag = diag;
                 if (period === "Baseline") {
                     patientSchedules[pIndex].baseline = date;
                     patientSchedules[pIndex].code = code5d;
@@ -374,6 +475,7 @@
             }
 
             localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
+            checkDailyDueAlerts(); // อัปเดตรายการแจ้งเตือนสดทันทีหลังบันทึก
             alert(`🎯 บันทึกสำเร็จ!\nเก็บข้อมูลผู้ป่วย ${hn} (${diag}) รอบ [${period}] เรียบร้อยแล้วค่ะ`);
             document.getElementById('summary-box').scrollIntoView({ behavior: 'smooth' });
         }
@@ -480,9 +582,9 @@
         function clearAllData() {
             if(confirm("คุณต้องการล้างข้อมูลประวัติที่เคยบันทึกไว้ทั้งหมดใช่หรือไม่?")) {
                 eq5dRecords = []; localStorage.removeItem('eq5dRecords');
-                localStorage.removeItem('patientSchedules');
+                patientSchedules = []; localStorage.removeItem('patientSchedules');
                 document.getElementById('summary-box').classList.add('hidden');
-                updateTable(); renderMonthlyChart(); alert("ล้างข้อมูลเรียบร้อยแล้วครับ");
+                updateTable(); renderMonthlyChart(); checkDailyDueAlerts(); alert("ล้างข้อมูลเรียบร้อยแล้วครับ");
             }
         }
     </script>
