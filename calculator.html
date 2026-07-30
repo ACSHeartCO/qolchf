@@ -1,1 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardio Patient Registry & Scheduler</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
+        header { background-color: #4338ca; color: white; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .header-wrap { max-width: 1250px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .header-title h1 { font-size: 20px; margin: 0; font-weight: 700; }
+        .header-title p { font-size: 12px; margin: 4px 0 0 0; color: #c7d2fe; }
+        .nav-btn { padding: 8px 16px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .nav-btn:hover { background-color: #6366f1; }
 
+        .main-container { max-width: 1250px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; background: #f1f5f9; padding: 16px; border-radius: 12px; }
+        .card-title { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0; }
+        .filter-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .filter-select, .search-input { padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13px; background-color: white; }
+
+        .table-scroll { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 1200px; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        th { background: #f8fafc; font-weight: 600; color: #64748b; white-space: nowrap; }
+        
+        .timeline-info-box { font-size: 11px; color: #475569; line-height: 1.45; background-color: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 5px; }
+        .box-3m { border-left: 4px solid #0ea5e9; background-color: #f0f9ff; }
+        .box-6m { border-left: 4px solid #f59e0b; background-color: #fffbeb; }
+        .box-1y { border-left: 4px solid #a855f7; background-color: #faf5ff; }
+        .box-empty { border-left: 4px dashed #cbd5e1; background-color: #f1f5f9; opacity: 0.75; }
+
+        .code-badge { font-family: monospace; font-weight: 700; background: #e0e7ff; color: #4338ca; padding: 1px 5px; border-radius: 4px; }
+        .utility-badge { font-family: monospace; font-weight: 700; background: white; color: #5b21b6; padding: 2px 5px; border-radius: 4px; font-size: 11px; display: inline-block; margin-top: 2px; border: 1px solid #ddd6fe; }
+        .issue-text { font-size: 10.5px; color: #dc2626; margin-top: 4px; font-weight: 500; }
+        .no-issue { color: #059669; font-weight: 500; }
+        
+        .diag-pill { font-weight: 700; padding: 3px 8px; border-radius: 6px; font-size: 11px; display: inline-block; margin-top: 4px; }
+        .dp-stemi { background-color: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+        .dp-ppm { background-color: #f0fdf4; color: #166534; border: 1px solid #86efac; }
+        .dp-rfa { background-color: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+        .dp-chf { background-color: #f0f9ff; color: #075985; border: 1px solid #bae6fd; }
+
+        .status-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+        .sb-done { background-color: #dcfce7; color: #15803d; }
+        .sb-due { background-color: #fef3c7; color: #b45309; }
+        .sb-overdue { background-color: #fee2e2; color: #b91c1c; }
+
+        .followup-date { font-weight: 700; color: #1e293b; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-go { display: inline-block; padding: 3px 8px; font-size: 10.5px; font-weight: 600; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+        .bg-3m { background-color: #0ea5e9; } .bg-3m:hover { background-color: #0284c7; }
+        .bg-6m { background-color: #f59e0b; color: white; } .bg-6m:hover { background-color: #d97706; }
+        .bg-1y { background-color: #a855f7; } .bg-1y:hover { background-color: #9333ea; }
+        
+        .btn-del { background-color: #ef4444; color: white; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .btn-del:hover { background-color: #dc2626; }
+        .empty-row { text-align: center; color: #94a3b8; padding: 50px; font-style: italic; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-wrap">
+            <div class="header-title">
+                <h1>📋 Cardiovascular Patient Registry & Follow-up Scheduler</h1>
+                <p>สมุดทะเบียนผู้ป่วย ค้นหาตารางนัดหมาย และเปรียบเทียบผลลัพธ์คุณภาพชีวิต (STEMI, PPM, EPS+RFA, CHF)</p>
+            </div>
+            <div class="header-nav">
+                <a href="index.html" class="nav-btn">📝 กลับหน้าประเมินหลัก (EQ-5D-5L)</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="card">
+            <div class="filter-bar">
+                <div>
+                    <h2 class="card-title">👥 ทะเบียนประวัติและตารางติดตามผลรายบุคคล</h2>
+                    <span style="font-size:12px; color:#64748b;">คำนวณวันนัด 3 เดือน / 6 เดือน / 1 ปี อัตโนมัติจากวันแรกรับ</span>
+                </div>
+                <div class="filter-group">
+                    <input type="text" id="searchHN" class="search-input" placeholder="🔎 ค้นหา HN..." oninput="renderSchedulerTable()">
+                    <select id="filterDiag" class="filter-select" onchange="renderSchedulerTable()">
+                        <option value="ALL">ทุกกลุ่มโรค</option>
+                        <option value="STEMI">STEMI</option>
+                        <option value="PPM">PPM</option>
+                        <option value="EPS+RFA">EPS+RFA</option>
+                        <option value="CHF">CHF</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">HN / กลุ่มโรค</th>
+                            <th style="width: 22.5%;">แรกรับ (Baseline)</th>
+                            <th style="width: 22.5%;">กำหนดนัด 3 เดือน (3M)</th>
+                            <th style="width: 22.5%;">กำหนดนัด 6 เดือน (6M)</th>
+                            <th style="width: 22.5%;">กำหนดนัด 1 ปี (1Y)</th>
+                            <th style="text-align:center; width: 5%;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedulerTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let patientSchedules = JSON.parse(localStorage.getItem('patientSchedules')) || [];
+
+        window.onload = function() {
+            renderSchedulerTable();
+        };
+
+        function formatDateTH(dateString) {
+            if(!dateString || dateString === "-") return "-";
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('th-TH', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+        }
+
+        function getDiagBadge(diag) {
+            if(diag === 'STEMI') return '<span class="diag-pill dp-stemi">STEMI</span>';
+            if(diag === 'PPM') return '<span class="diag-pill dp-ppm">PPM</span>';
+            if(diag === 'EPS+RFA') return '<span class="diag-pill dp-rfa">EPS+RFA</span>';
+            return '<span class="diag-pill dp-chf">CHF</span>';
+        }
+
+        function getIssuesText(code) {
+            if (!code || code === "11111") return "<div class='no-issue'>✅ ปกติ (ไม่มีปัญหารุนแรง)</div>";
+            const textLabels = ["การเคลื่อนไหว", "การดูแลตัวเอง", "กิจกรรมประจำวัน", "อาการปวด", "ความวิตกกังวล"];
+            let issues = [];
+            for (let i = 0; i < 5; i++) {
+                let lvl = parseInt(code.charAt(i)) || 1;
+                if (lvl > 1) { issues.push(`${textLabels[i]} L${lvl}`); }
+            }
+            return "<div class='issue-text'>⚠️ ปัญหา: " + issues.join(", ") + "</div>";
+        }
+
+        function getStatusBadge(targetDateStr, dataObj) {
+            if (dataObj) return '<span class="status-badge sb-done">✅ ประเมินแล้ว</span>';
+            if (!targetDateStr || targetDateStr === '-') return '';
+            
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const targetDate = new Date(targetDateStr);
+            
+            if (targetDate < today) {
+                return '<span class="status-badge sb-overdue">🚨 เกินกำหนดนัด</span>';
+            } else {
+                return '<span class="status-badge sb-due">⏳ รอประเมิน</span>';
+            }
+        }
+
+        function generateContentColumn(targetDate, dataObj, boxTypeClass, hn, periodNum, btnClass, diag) {
+            const statusBadgeHtml = getStatusBadge(targetDate, dataObj);
+            
+            if (!dataObj) {
+                return `
+                    <div>${statusBadgeHtml}</div>
+                    <div class="followup-date">
+                        <span>📅 ${formatDateTH(targetDate)}</span>
+                        <button class="btn-go ${btnClass}" onclick="goToAssessment('${hn}', '${periodNum}', '${diag}')">📝 ทำแบบประเมิน</button>
+                    </div>
+                    <div class="timeline-info-box box-empty">
+                        ⏳ <i>ยังไม่มีข้อมูลผลประเมินรอบนี้</i>
+                    </div>
+                `;
+            }
+
+            const problemHtml = getIssuesText(dataObj.code);
+            return `
+                <div>${statusBadgeHtml}</div>
+                <div class="followup-date" style="color: #059669;">
+                    <span>ทำเมื่อ: ${formatDateTH(dataObj.date)}</span>
+                    <button class="btn-go ${btnClass}" style="opacity:0.75;" onclick="goToAssessment('${hn}', '${periodNum}', '${diag}')">🔄 แก้ไข</button>
+                </div>
+                <div class="timeline-info-box ${boxTypeClass}">
+                    <strong>กำหนดนัด:</strong> ${formatDateTH(targetDate)}<br>
+                    <strong>รหัส 5 มิติ:</strong> <span class="code-badge">${dataObj.code}</span><br>
+                    <strong>EQ-VAS:</strong> ${dataObj.vas}/100 | <strong>ดัชนี:</strong> <span class="utility-badge">${parseFloat(dataObj.score).toFixed(3)}</span>
+                    ${problemHtml}
+                </div>
+            `;
+        }
+
+        function renderSchedulerTable() {
+            const tbody = document.getElementById('schedulerTable');
+            const filterValue = document.getElementById('filterDiag').value;
+            const searchKeyword = document.getElementById('searchHN').value.trim().toLowerCase();
+            tbody.innerHTML = '';
+
+            let filteredList = patientSchedules;
+
+            // กรองตามกลุ่มโรค
+            if(filterValue !== 'ALL') {
+                filteredList = filteredList.filter(p => (p.diag || 'CHF') === filterValue);
+            }
+
+            // กรองตามคำค้นหา HN
+            if(searchKeyword !== '') {
+                filteredList = filteredList.filter(p => p.hn.toLowerCase().includes(searchKeyword));
+            }
+
+            if(filteredList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-row">ไม่พบข้อมูลผู้ป่วยตามเงื่อนไขที่ระบุ<br><span style="font-size:11px; font-weight:normal; color:#b45309;">(ทำแบบประเมินเคสแรกรับ Baseline ที่หน้าหลัก เพื่อลงทะเบียนผู้ป่วยใหม่)</span></td></tr>';
+                return;
+            }
+
+            filteredList.forEach((p, index) => {
+                const tr = document.createElement('tr');
+                const diag = p.diag || 'CHF';
+                const dBadge = getDiagBadge(diag);
+                
+                const baseCode = p.code || "11111";
+                const baseScore = p.score ? parseFloat(p.score).toFixed(3) : "1.000";
+                const baseVas = p.vas || "70";
+                const baseProblemHtml = getIssuesText(baseCode);
+                
+                const baselineColumnHtml = p.baseline ? `
+                    <div class="followup-date">📅 ${formatDateTH(p.baseline)}</div>
+                    <div class="timeline-info-box" style="border-left: 4px solid #64748b;">
+                        <strong>รหัส 5 มิติ:</strong> <span class="code-badge">${baseCode}</span><br>
+                        <strong>EQ-VAS:</strong> ${baseVas}/100 | <strong>ดัชนี:</strong> <span class="utility-badge">${baseScore}</span>
+                        ${baseProblemHtml}
+                    </div>
+                ` : `<div class="timeline-info-box box-empty">⚠️ ข้ามคีย์ Baseline</div>`;
+
+                const m3ColumnHtml = generateContentColumn(p.m3Date, p.m3Data, 'box-3m', p.hn, '3', 'bg-3m', diag);
+                const m6ColumnHtml = generateContentColumn(p.m6Date, p.m6Data, 'box-6m', p.hn, '6', 'bg-6m', diag);
+                const m1yColumnHtml = generateContentColumn(p.m1yDate, p.m1yData, 'box-1y', p.hn, '1', 'bg-1y', diag);
+
+                tr.innerHTML = `
+                    <td style="vertical-align:middle;">
+                        <div style="font-weight:700; color:#4338ca; font-size:14px;">${p.hn}</div>
+                        <div>${dBadge}</div>
+                    </td>
+                    <td>${baselineColumnHtml}</td>
+                    <td>${m3ColumnHtml}</td>
+                    <td>${m6ColumnHtml}</td>
+                    <td>${m1yColumnHtml}</td>
+                    <td style="text-align:center; vertical-align: middle;">
+                        <button class="btn-del" onclick="deleteSchedule(${index})">🗑️ ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function goToAssessment(hn, period, diag) {
+            window.location.href = `index.html?hn=${encodeURIComponent(hn)}&period=${encodeURIComponent(period)}&diag=${encodeURIComponent(diag)}`;
+        }
+
+        function deleteSchedule(index) {
+            if(confirm("คุณต้องการลบข้อมูลผู้ป่วยรายนี้ออกจากสมุดทะเบียนและตารางนัดหมายใช่หรือไม่?")) {
+                patientSchedules.splice(index, 1);
+                localStorage.setItem('patientSchedules', JSON.stringify(patientSchedules));
+                renderSchedulerTable();
+            }
+        }
+    </script>
+</body>
+</html>
